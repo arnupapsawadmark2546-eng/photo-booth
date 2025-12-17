@@ -51,15 +51,35 @@
       cursor: pointer; color: #999; background: none; border: none;
     }
     
-    /* Donation Specific */
+    /* NEW: Donation Button Style (Minimal) */
     .donate-btn-top {
       position: absolute; top: 20px; right: 20px;
-      background: white; border: 1px solid #eee; border-radius: 50%;
-      width: 40px; height: 40px; cursor: pointer; color: #ff4757;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center;
-      font-size: 18px; transition: 0.2s; z-index: 100;
+      background: rgba(255,255,255,0.8); 
+      backdrop-filter: blur(4px);
+      border: 1px solid #eee; 
+      border-radius: 30px; /* Capsule Shape */
+      padding: 8px 16px;
+      cursor: pointer; color: #333;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      font-size: 13px; font-weight: 600; font-family: 'Kanit', sans-serif;
+      transition: 0.2s; z-index: 100;
     }
-    .donate-btn-top:hover { transform: scale(1.1); background: #fff0f0; }
+    .donate-btn-top:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
+    .donate-btn-top i { color: #ff6b81; }
+
+    /* NEW: Bank Card Style */
+    .bank-card {
+        background: #f8f9fa; border: 1px solid #eee; border-radius: 16px;
+        padding: 20px; margin-top: 15px; text-align: left;
+        display: flex; align-items: center; gap: 15px;
+    }
+    .bank-icon {
+        width: 45px; height: 45px; background: #138f2d; color: white;
+        border-radius: 10px; display: flex; align-items: center; justify-content: center;
+        font-size: 20px; font-weight: bold;
+    }
+    .bank-details div { line-height: 1.4; }
 
     /* --- APP UI --- */
     .app-title-box { text-align: center; margin-bottom: 20px; margin-top: 10px; }
@@ -149,7 +169,7 @@
 <body>
 
 <button class="donate-btn-top" onclick="toggleModal('donateModal')" title="Support Me">
-  <i class="fas fa-heart"></i>
+  <i class="fas fa-mug-hot"></i> สนับสนุน
 </button>
 
 <div id="welcomeModal" class="modal-overlay open">
@@ -183,11 +203,16 @@
     <h3 style="margin-top:0;">Support Me 💖</h3>
     <p style="font-size:14px; color:#666;">เลี้ยงกาแฟผมได้ที่นี่ครับ</p>
     
-    <img src="qrcode.jpg" 
-         style="width:200px; height:auto; border-radius:10px; margin: 10px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.1);" 
-         alt="QR Code PromptPay">
-    <p style="font-size:14px; font-weight:bold; margin: 5px 0;">คุณ ณัฐ อานุภาพสวัสดิ์</p>
-    <p style="font-size:12px; color:#aaa;">(หรือติดตามผลงานที่ IG: markenz9)</p>
+    <div class="bank-card">
+        <div class="bank-icon">K</div>
+        <div class="bank-details">
+            <div style="font-size:12px; color:#999; text-transform:uppercase; font-weight:600;">Kasikornbank</div>
+            <div style="font-size:20px; font-weight:800; color:#138f2d; letter-spacing:1px; margin:2px 0;">036-851-7569</div>
+            <div style="font-size:14px; font-weight:500;">ณัฐ อานุภาพสวัสดิ์</div>
+        </div>
+    </div>
+    
+    <p style="font-size:12px; color:#aaa; margin-top:20px;">(ขอบคุณที่สนับสนุนผลงานครับ!)</p>
   </div>
 </div>
 
@@ -212,9 +237,9 @@
 </div>
 
 <div class="control-group">
-  <span class="label">Tone</span>
-  <button onclick="setFilter('none', this)" class="option-btn active">Normal</button>
-  <button onclick="setFilter('brightness(1.15) saturate(0.9) contrast(0.95)', this)" class="option-btn">🇰🇷 Soft</button>
+  <span class="label">Skin & Tone</span>
+  <button onclick="setFilter('brightness(1.1) contrast(0.9) saturate(1.05)', this)" class="option-btn active">✨ Wink</button>
+  <button onclick="setFilter('none', this)" class="option-btn">Normal</button>
   <button onclick="setFilter('brightness(1.1) contrast(1.15) sepia(0.2)', this)" class="option-btn">🇯🇵 Film</button>
   <button onclick="setFilter('grayscale(100%) contrast(1.1)', this)" class="option-btn">☁️ Mono</button>
 </div>
@@ -292,7 +317,8 @@
   let photos = [];
   let maxPhotos = 4;
   let currentLayout = 4;
-  let currentFilter = 'none';
+  // ตั้งค่าเริ่มต้นเป็นโหมดหน้าเนียน (Wink)
+  let currentFilter = 'brightness(1.1) contrast(0.9) saturate(1.05)';
   let frameType = 'white'; 
   let isCapturing = false;
   let stickers = []; 
@@ -315,6 +341,10 @@
       alert("Browser ไม่รองรับ หรือไม่ได้เปิดผ่าน HTTPS");
       return;
     }
+    
+    // ตั้งค่า Filter เริ่มต้นให้ Video ทันที
+    video.style.filter = currentFilter;
+
     navigator.mediaDevices.getUserMedia({ 
       video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" } 
     }).then(stream => { video.srcObject = stream; video.play(); })
