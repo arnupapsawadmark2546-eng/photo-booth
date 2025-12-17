@@ -50,6 +50,10 @@
   const ctx = canvas.getContext("2d");
   const countdownEl = document.getElementById("countdown");
   const frameDiv = document.getElementById("frame");
+  const photosDiv = document.getElementById("photos");
+const frameDiv = document.getElementById("frame");
+const photos = [];
+
 
   navigator.mediaDevices.getUserMedia({ video: true })
     .then(stream => video.srcObject = stream);
