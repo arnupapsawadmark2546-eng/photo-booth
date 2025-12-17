@@ -57,19 +57,6 @@
   const photos = [];
   const countdownEl = document.getElementById("countdown");
   const video = document.getElementById("video");
-function startCamera() {
-  navigator.mediaDevices.getUserMedia({ video: true })
-    .then(stream => {
-      video.srcObject = stream;
-      video.onloadedmetadata = () => {
-        video.play();
-      };
-    })
-    .catch(err => {
-      alert("เปิดกล้องไม่ได้");
-      console.error(err);
-    });
-}
 
 function startPhotoBooth() {
   navigator.mediaDevices.getUserMedia({ video: true })
