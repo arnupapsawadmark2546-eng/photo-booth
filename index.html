@@ -97,6 +97,8 @@ const caption = document.getElementById("captionInput").value || "";
 function createFrame() {
   frameDiv.innerHTML = "";
 
+  const caption = document.getElementById("captionInput").value || "";
+
   const frameCanvas = document.createElement("canvas");
   const fctx = frameCanvas.getContext("2d");
 
@@ -106,17 +108,13 @@ function createFrame() {
   const images = [];
   let loaded = 0;
 
-  // โหลดรูปทั้งหมดก่อน
   photos.forEach((src, i) => {
     const img = new Image();
     img.src = src;
     img.onload = () => {
       images[i] = img;
       loaded++;
-
-      if (loaded === photos.length) {
-        drawFrame();
-      }
+      if (loaded === photos.length) drawFrame();
     };
   });
 
@@ -127,33 +125,27 @@ function createFrame() {
     frameCanvas.width = w * 2 + padding * 3;
     frameCanvas.height = h * 2 + padding * 3 + bottomSpace;
 
-    // 👉 กรอบขาว (พื้นหลัง)
+    // พื้นหลังขาว
     fctx.fillStyle = "#ffffff";
     fctx.fillRect(0, 0, frameCanvas.width, frameCanvas.height);
 
-    // วาดรูป 4 รูป
+    // รูป 4 รูป
     images.forEach((img, i) => {
       const x = padding + (i % 2) * (w + padding);
       const y = padding + Math.floor(i / 2) * (h + padding);
       fctx.drawImage(img, x, y, w, h);
     });
 
-    // ข้อความล่าง
+    // ข้อความใต้รูป
     fctx.fillStyle = "#000";
-    fctx.font = "24px Arial";
+    fctx.font = "28px Arial";
     fctx.textAlign = "center";
-    // ข้อความใต้รูป (จากที่พิมพ์)
-fctx.fillStyle = "#000";
-fctx.font = "28px Arial";
-fctx.textAlign = "center";
-fctx.fillText(
-  caption,
-  frameCanvas.width / 2,
-  frameCanvas.height - 30
-);
+    fctx.fillText(
+      caption,
+      frameCanvas.width / 2,
+      frameCanvas.height - 30
+    );
 
-
-    // แสดงผล
     const resultImg = document.createElement("img");
     resultImg.src = frameCanvas.toDataURL("image/png");
     resultImg.style.width = "300px";
