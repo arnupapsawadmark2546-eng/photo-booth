@@ -13,18 +13,35 @@
       width: 280px;
       border-radius: 12px;
       background: black;
-      transform: scaleX(-1);
+      /* 1. แก้กลับด้านที่หน้าจอ (ให้เหมือนส่องกระจก) */
+      transform: scaleX(-1); 
     }
     button {
       padding: 10px 18px;
-      font-size: 16px;
-      margin: 6px;
+      font-size: 14px;
+      margin: 4px;
       cursor: pointer;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: white;
+    }
+    button:hover {
+      background: #e0e0e0;
+    }
+    /* จัดกลุ่มปุ่มฟิลเตอร์ให้สวยงาม */
+    .filter-controls {
+      margin: 15px 0;
+      padding: 10px;
+      background: #fff;
+      display: inline-block;
+      border-radius: 10px;
     }
     #photos img {
       width: 70px;
       margin: 4px;
       border-radius: 6px;
+      /* ให้รูปตัวอย่างเล็กๆ กลับด้านเหมือนกระจกด้วย (สวยงาม) */
+      transform: scaleX(-1);
     }
     #frame img {
       width: 300px;
@@ -37,6 +54,7 @@
       width: 260px;
       font-size: 15px;
       text-align: center;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -44,12 +62,24 @@
 
 <h2>📸 MILKBOX BY IG MARKENZ9 </h2>
 
-<video id="video" autoplay playsinline></video><br><br>
+<video id="video" autoplay playsinline></video>
 
-<button onclick="startCamera()">เปิดกล้อง</button>
-<button onclick="takePhoto()">ถ่ายรูป</button>
+<br>
 
-<br><br>
+<div class="filter-controls">
+  <div>เลือกโทนสี:</div>
+  <button onclick="setFilter('none')">ธรรมชาติ</button>
+  <button onclick="setFilter('sepia(0.6)')">วินเทจ</button>
+  <button onclick="setFilter('grayscale(100%)')">ขาวดำ</button>
+  <button onclick="setFilter('contrast(1.3) brightness(1.1) saturate(1.2)')">สดใส</button>
+</div>
+
+<br>
+
+<button onclick="startCamera()" style="background:#4CAF50; color:white;">เปิดกล้อง</button>
+<button onclick="takePhoto()" style="background:#FF5722; color:white;">ถ่ายรูป</button>
+
+<br>
 <input id="captionInput" type="text" placeholder="พิมพ์ข้อความใต้รูป">
 
 <div id="photos"></div>
@@ -61,13 +91,22 @@
   const frameDiv = document.getElementById("frame");
 
   const photos = [];
+  
+  // 3. ตัวแปรเก็บค่าฟิลเตอร์ปัจจุบัน (ค่าเริ่มต้นคือ none)
+  let currentFilter = 'none';
+
+  // 4. ฟังก์ชันเปลี่ยนฟิลเตอร์
+  function setFilter(filterValue) {
+    currentFilter = filterValue;
+    video.style.filter = filterValue; // เปลี่ยนสีที่จอมองเห็นทันที
+  }
 
   function startCamera() {
     navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => {
         video.srcObject = stream;
       })
-      .catch(err => alert("เปิดกล้องไม่ได้"));
+      .catch(err => alert("เปิดกล้องไม่ได้: " + err));
   }
 
   function takePhoto() {
@@ -78,8 +117,22 @@
     canvas.height = video.videoHeight;
 
     const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+    // --- จุดสำคัญ: เรียงลำดับตามนี้ ห้ามสลับ ---
+    
+    // 5. ใส่ฟิลเตอร์ลงใน Canvas ก่อนวาด
+    ctx.filter = currentFilter;
+
+    // 6. กลับด้านรูป (Flip)
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+
+    // 7. วาดรูปลงไป
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // ---------------------------------------
+
+    // แปลงเป็นรูปภาพ
     const imgData = canvas.toDataURL("image/png");
     photos.push(imgData);
 
@@ -94,15 +147,15 @@
 
   function createFrame() {
     frameDiv.innerHTML = "";
-
     const caption = document.getElementById("captionInput").value || "";
-
+    
     const frameCanvas = document.createElement("canvas");
     const fctx = frameCanvas.getContext("2d");
 
     const padding = 20;
     const bottomSpace = 70;
-
+    
+    // โหลดรูปทั้ง 4 (ซึ่งรูปพวกนี้ถูกกลับด้านและใส่สีมาเรียบร้อยแล้วจากขั้นตอน takePhoto)
     const images = [];
     let loaded = 0;
 
@@ -123,26 +176,22 @@
       frameCanvas.width = w * 2 + padding * 3;
       frameCanvas.height = h * 2 + padding * 3 + bottomSpace;
 
-      // กรอบขาว
+      // พื้นหลังสีขาว
       fctx.fillStyle = "#ffffff";
       fctx.fillRect(0, 0, frameCanvas.width, frameCanvas.height);
 
-      // รูป 4 รูป
+      // วาดรูป 4 รูป
       images.forEach((img, i) => {
         const x = padding + (i % 2) * (w + padding);
         const y = padding + Math.floor(i / 2) * (h + padding);
         fctx.drawImage(img, x, y, w, h);
       });
 
-      // ข้อความใต้รูป
+      // ข้อความ
       fctx.fillStyle = "#000";
-      fctx.font = "35px Arial";
+      fctx.font = "bold 35px Arial"; // เพิ่มตัวหนาให้สวยขึ้น
       fctx.textAlign = "center";
-      fctx.fillText(
-        caption,
-        frameCanvas.width / 2,
-        frameCanvas.height - 30
-      );
+      fctx.fillText(caption, frameCanvas.width / 2, frameCanvas.height - 30);
 
       const result = document.createElement("img");
       result.src = frameCanvas.toDataURL("image/png");
@@ -150,9 +199,13 @@
 
       const link = document.createElement("a");
       link.href = result.src;
-      link.download = "photo-booth.png";
+      link.download = "milkbox-photo.png";
+      link.style.display = "block";
+      link.style.marginTop = "10px";
+      link.style.textDecoration = "none";
+      link.style.color = "#333";
       link.innerText = "⬇️ ดาวน์โหลดรูป";
-      frameDiv.appendChild(document.createElement("br"));
+      
       frameDiv.appendChild(link);
     }
   }
