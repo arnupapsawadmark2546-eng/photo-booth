@@ -20,7 +20,7 @@
       min-height: 100vh;
     }
 
-    /* --- ส่วนหัวชื่อแอป --- */
+    /* --- ส่วนหัว --- */
     .app-title-box {
       text-align: center;
       margin-bottom: 25px;
@@ -39,9 +39,8 @@
       letter-spacing: 1px;
       margin-top: 5px;
     }
-    /* ------------------- */
 
-    /* กล้องและ Overlay */
+    /* กล้อง */
     .camera-wrapper {
       position: relative;
       width: 100%;
@@ -51,12 +50,14 @@
       overflow: hidden;
       box-shadow: 0 15px 40px rgba(0,0,0,0.1);
       background: #000;
+      aspect-ratio: 3/4; /* บังคับสัดส่วนกล้อง */
     }
     
     video {
       width: 100%;
-      display: block;
-      transform: scaleX(-1); /* กลับด้านจอมองเห็น */
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
     }
 
     /* Overlay นับถอยหลัง */
@@ -69,7 +70,7 @@
       align-items: center;
       background: rgba(0,0,0,0.3);
       color: white;
-      pointer-events: none; /* ให้คลิกทะลุได้ */
+      pointer-events: none;
       opacity: 0;
       transition: opacity 0.3s;
     }
@@ -89,7 +90,7 @@
       margin-top: 10px;
     }
 
-    /* กลุ่มปุ่มกด (Control Group) */
+    /* แผงควบคุม */
     .control-group {
       background: white;
       padding: 12px;
@@ -111,7 +112,6 @@
       letter-spacing: 1px;
     }
 
-    /* สไตล์ปุ่มเลือก options */
     .option-btn {
       border: 1px solid transparent;
       padding: 8px 12px;
@@ -129,7 +129,7 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-    /* แถวปุ่มควบคุมหลัก */
+    /* ปุ่มควบคุมหลัก */
     .main-controls {
         display: flex;
         align-items: center;
@@ -138,7 +138,7 @@
         margin: 20px 0;
     }
 
-    /* ปุ่มวงกลม (Auto Snap) */
+    /* ปุ่ม Auto Snap */
     .auto-snap-btn {
       width: 80px;
       height: 80px;
@@ -154,10 +154,9 @@
       font-weight: bold;
       font-size: 14px;
       text-transform: uppercase;
-      transition: transform 0.1s, filter 0.2s;
+      transition: transform 0.1s;
     }
     .auto-snap-btn:active { transform: scale(0.95); }
-    /* สถานะกำลังถ่าย */
     .auto-snap-btn.capturing {
         background: #ccc;
         box-shadow: none;
@@ -178,7 +177,6 @@
     }
     .icon-btn:hover { background: #f0f0f0; }
 
-    /* Input ข้อความ */
     input[type="text"] {
       border: none;
       background: #fff;
@@ -192,23 +190,21 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.03);
       margin-bottom: 20px;
     }
-    input:focus { box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
 
-    /* รูปผลลัพธ์ */
     #photos {
       display: flex;
       justify-content: center;
       gap: 8px;
       margin-bottom: 20px;
       flex-wrap: wrap;
-      min-height: 60px; /* กัน layout ขยับ */
+      min-height: 60px;
     }
     #photos img {
       width: 60px;
       height: 60px;
       object-fit: cover;
       border-radius: 10px;
-      transform: scaleX(-1); /* กลับด้านรูปเล็ก */
+      transform: scaleX(-1);
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 
@@ -224,11 +220,11 @@
       box-shadow: 0 20px 60px rgba(0,0,0,0.2);
     }
 
-    /* ปุ่ม Action หลังถ่ายเสร็จ */
     .final-actions {
         display: flex;
         gap: 10px;
         margin-top: 20px;
+        margin-bottom: 50px;
     }
     .action-button {
         padding: 12px 24px;
@@ -245,9 +241,7 @@
     }
     .dl-btn { background: #000; color: white; }
     .share-btn { background: #fff; color: #333; border: 1px solid #ddd; }
-    .share-btn:hover { background: #f9f9f9; border-color: #ccc;}
-
-    /* ซ่อนองค์ประกอบเมื่อกำลังถ่าย Auto */
+    
     body.is-capturing .control-group,
     body.is-capturing input,
     body.is-capturing #photos,
@@ -289,10 +283,10 @@
 
 <div class="control-group">
   <span class="label">Frame</span>
-  <button onclick="setFrameColor('#ffffff', '#000000')" class="option-btn active">White</button>
-  <button onclick="setFrameColor('#1a1a1a', '#ffffff')" class="option-btn" style="background:#333; color:#fff;">Black</button>
-  <button onclick="setFrameColor('#FADADD', '#C2185B')" class="option-btn" style="background:#FADADD; color:#C2185B;">Pink</button>
-  <button onclick="setFrameColor('#E3F2FD', '#1565C0')" class="option-btn" style="background:#E3F2FD; color:#1565C0;">Blue</button>
+  <button onclick="setFrameColor('#ffffff', '#000000', this)" class="option-btn active">White</button>
+  <button onclick="setFrameColor('#1a1a1a', '#ffffff', this)" class="option-btn" style="background:#333; color:#fff;">Black</button>
+  <button onclick="setFrameColor('#FADADD', '#C2185B', this)" class="option-btn" style="background:#FADADD; color:#C2185B;">Pink</button>
+  <button onclick="setFrameColor('#E3F2FD', '#1565C0', this)" class="option-btn" style="background:#E3F2FD; color:#1565C0;">Blue</button>
 </div>
 
 <div class="main-controls">
@@ -318,52 +312,71 @@
   const photoCounterText = document.getElementById("photoCounterText");
   const autoSnapBtn = document.getElementById("autoSnapBtn");
 
-  // State Variables
+  // --- ตัวแปร State (แก้ชื่อตัวแปรที่ผิดให้แล้ว) ---
   let photos = [];
   let maxPhotos = 4; 
   let currentLayout = 4;
   let currentFilter = 'none';
   let frameBg = '#ffffff';
   let frameText = '#000000';
-  let is Capturing = false; // สถานะกำลังถ่ายอัตโนมัติ
+  let isCapturing = false; // แก้ไข: ลบเว้นวรรคออก
 
-  // เริ่มต้นกล้อง
+  // --- เริ่มต้นกล้อง ---
   function startCamera() {
-    navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720, facingMode: "user" } })
-      .then(stream => { video.srcObject = stream; })
-      .catch(err => alert("Cannot access camera. Please allow permission."));
+    // ตรวจสอบว่า Browser รองรับไหม
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert("Browser นี้ไม่รองรับการเปิดกล้อง หรือไม่ได้เปิดผ่าน HTTPS");
+      return;
+    }
+
+    navigator.mediaDevices.getUserMedia({ 
+      video: { 
+        width: { ideal: 1280 }, 
+        height: { ideal: 720 }, 
+        facingMode: "user" 
+      } 
+    })
+    .then(stream => { 
+      video.srcObject = stream;
+      video.play(); // สั่ง play เพื่อความชัวร์
+    })
+    .catch(err => {
+      console.error(err);
+      alert("เปิดกล้องไม่ได้: กรุณาอนุญาตการใช้กล้อง หรือตรวจสอบว่าเปิดผ่าน HTTPS/Localhost หรือไม่");
+    });
   }
 
-  // --- ฟังก์ชันหลักสำหรับการถ่าย Auto ---
+  // --- Auto Capture Logic ---
   function startAutoCapture() {
-    if (isCapturing) return; // ป้องกันการกดซ้ำ
-    if (!video.srcObject) { alert("Please open camera first!"); return; }
+    if (isCapturing) return;
+    if (!video.srcObject) { 
+        // ถ้ายังไม่เปิดกล้อง ให้ลองเปิดก่อน
+        startCamera();
+        setTimeout(() => {
+            if(video.srcObject) startAutoCapture();
+        }, 1000);
+        return; 
+    }
     
-    // เคลียร์ของเก่าก่อนเริ่มใหม่
     resetApp(false); 
     
     isCapturing = true;
-    document.body.classList.add('is-capturing'); // เพิ่ม class เพื่อล็อก UI อื่นๆ
+    document.body.classList.add('is-capturing');
     autoSnapBtn.classList.add('capturing');
-    autoSnapBtn.innerText = "STOP"; // เปลี่ยนปุ่มเผื่ออยากหยุด (ยังไม่ได้ทำฟังก์ชันหยุด แต่ใส่ไว้ก่อน)
+    autoSnapBtn.innerText = "STOP"; 
 
-    // เริ่มกระบวนการถ่ายรูปที่ 1
     runCaptureSequence(0);
   }
 
-  // ฟังก์ชันวนลูปถ่ายทีละรูป
   function runCaptureSequence(index) {
-    // ถ้าถ่ายครบแล้ว ให้จบกระบวนการ
     if (index >= maxPhotos) {
         finishAutoCapture();
         return;
     }
 
-    // 1. อัปเดต UI บอกว่ากำลังจะถ่ายรูปที่เท่าไหร่
     photoCounterText.innerText = `Photo ${index + 1}/${maxPhotos}`;
-    cameraOverlay.classList.add('active'); // แสดง Overlay
+    cameraOverlay.classList.add('active');
 
-    // 2. เริ่มนับถอยหลัง 3 วินาที
     let count = 3;
     countdownNum.innerText = count;
     
@@ -372,26 +385,22 @@
         if (count > 0) {
             countdownNum.innerText = count;
         } else {
-            // 3. เมื่อนับถึง 0
             clearInterval(countdownTimer);
             countdownNum.innerText = "CHEESE!";
             
-            // รอแป๊บนึงแล้วกดถ่าย (เพื่อให้เห็นคำว่า CHEESE)
             setTimeout(() => {
-                takePhoto(true); // ถ่ายรูป (true = มาจาก auto mode)
-                cameraOverlay.classList.remove('active'); // ซ่อน Overlay
+                takePhoto(true); 
+                cameraOverlay.classList.remove('active'); 
 
-                // 4. รอ 1.5 วินาทีก่อนเริ่มถ่ายรูปถัดไป
                 setTimeout(() => {
-                    runCaptureSequence(index + 1); // เรียกตัวเองซ้ำเพื่อถ่ายรูปถัดไป
+                    runCaptureSequence(index + 1);
                 }, 1500); 
 
             }, 500);
         }
-    }, 1000); // นับทุก 1 วินาที
+    }, 1000);
   }
 
-  // จบกระบวนการ Auto Capture
   function finishAutoCapture() {
     isCapturing = false;
     document.body.classList.remove('is-capturing');
@@ -399,11 +408,10 @@
     autoSnapBtn.innerText = "AUTO SNAP";
   }
 
-
-  // --- ฟังก์ชันอื่นๆ (Layout, Filter, Frame) ---
+  // --- Helper Functions ---
   function setLayout(num, btn) {
     if (isCapturing) return;
-    if (photos.length > 0 && !confirm("Changing layout will reset current photos.")) return;
+    if (photos.length > 0 && !confirm("เปลี่ยน Layout รูปจะหายนะ ยืนยันไหม?")) return;
     resetApp();
     maxPhotos = num;
     currentLayout = num;
@@ -415,12 +423,13 @@
     currentFilter = val;
     video.style.filter = val;
     if(btn) {
+      // ลบ active จากปุ่มอื่นในกลุ่มเดียวกัน
       btn.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
     }
   }
 
-  function setFrameColor(bg, txt) {
+  function setFrameColor(bg, txt, btn) { // เพิ่ม parameter btn
     frameBg = bg;
     frameText = txt;
     if(btn) {
@@ -434,10 +443,8 @@
     if (photos.length === maxPhotos) createFrame();
   }
 
-  // ถ่ายรูป 1 ช็อต
   function takePhoto(isAuto = false) {
     if (photos.length >= maxPhotos) return;
-    // ถ้าไม่ได้มาจาก auto mode และกำลังถ่าย auto อยู่ ห้ามกดยิงเอง
     if (!isAuto && isCapturing) return; 
 
     const canvas = document.createElement("canvas");
@@ -445,7 +452,6 @@
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext("2d");
 
-    // ฝัง Filter + กลับด้าน
     ctx.filter = currentFilter; 
     ctx.translate(canvas.width, 0);
     ctx.scale(-1, 1);
@@ -459,13 +465,11 @@
     thumb.src = imgData;
     photosDiv.appendChild(thumb);
 
-    // ถ้าถ่ายครบแล้ว ให้สร้างเฟรม (ถ้าเป็น Auto มันจะไปสร้างตอนจบ loop เอง)
     if (!isCapturing && photos.length === maxPhotos) {
       createFrame();
     }
   }
 
-  // สร้างรูปผลลัพธ์สุดท้าย
   function createFrame() {
     frameDiv.innerHTML = "";
     const caption = captionInput.value || "";
@@ -473,7 +477,6 @@
     const frameCanvas = document.createElement("canvas");
     const fctx = frameCanvas.getContext("2d");
 
-    // ตั้งค่า Padding (ขอบ) ให้เยอะหน่อยสำหรับวางลายน้ำ
     const padding = 50; 
     const gap = 20;
     const bottomSpace = 160;
@@ -496,7 +499,6 @@
       const h = images[0].height;
       let canvasW, canvasH;
 
-      // คำนวณขนาด Canvas ตาม Layout
       if (currentLayout === 3) {
         canvasW = w + (padding * 2);
         canvasH = (h * 3) + (gap * 2) + (padding * 2) + bottomSpace;
@@ -511,11 +513,9 @@
       frameCanvas.width = canvasW;
       frameCanvas.height = canvasH;
 
-      // 1. วาดพื้นหลัง
       fctx.fillStyle = frameBg;
       fctx.fillRect(0, 0, canvasW, canvasH);
 
-      // 2. วาดรูป
       images.forEach((img, i) => {
         let x, y;
         if (currentLayout === 3) {
@@ -528,55 +528,43 @@
         fctx.drawImage(img, x, y, w, h);
       });
 
-      // 3. วาด Caption หลัก
       fctx.fillStyle = frameText;
       fctx.font = "800 52px 'Inter', sans-serif";
       fctx.textAlign = "center";
       fctx.fillText(caption, canvasW / 2, canvasH - 90);
 
-      // 4. วาดวันที่
       fctx.font = "400 24px 'Inter', sans-serif";
       fctx.fillText(new Date().toLocaleDateString('en-GB'), canvasW / 2, canvasH - 40);
 
-      // =========================================
-      // 5. 🔴 เพิ่มลายน้ำ (Watermark) ตรงนี้ 🔴
-      // =========================================
-      fctx.save(); // บันทึกสถานะ Canvas
-      fctx.globalAlpha = 0.4; // ทำให้จางลง (Opacity 40%)
-      fctx.font = "600 16px 'Inter', sans-serif"; // ฟอนต์เล็กๆ มินิมอล
-      fctx.fillStyle = frameText; // ใช้สีเดียวกับตัวหนังสือ
+      // Watermark
+      fctx.save();
+      fctx.globalAlpha = 0.4; 
+      fctx.font = "600 16px 'Inter', sans-serif"; 
+      fctx.fillStyle = frameText; 
       fctx.textAlign = "right";
       fctx.letterSpacing = "1px";
-      // วางไว้มุมขวาล่าง (ในพื้นที่ Padding)
       fctx.fillText("MILKBOX BY IG MARKENZ9", canvasW - (padding/2), canvasH - (padding/2));
-      fctx.restore(); // คืนค่าสถานะ Canvas (เผื่อวาดอย่างอื่นต่อ)
-      // =========================================
+      fctx.restore();
 
-
-      // สร้างรูปผลลัพธ์เพื่อแสดงบนหน้าเว็บ
       const finalImage = document.createElement("img");
       const finalImageDataURL = frameCanvas.toDataURL("image/png");
       finalImage.src = finalImageDataURL;
       frameDiv.appendChild(finalImage);
 
-      // --- สร้างปุ่ม Download และ Share ---
       const actionContainer = document.createElement("div");
       actionContainer.className = "final-actions";
 
-      // ปุ่ม Download
       const dlBtn = document.createElement("a");
       dlBtn.href = finalImageDataURL;
       dlBtn.download = "milkbox-studio.png";
       dlBtn.className = "action-button dl-btn";
       dlBtn.innerHTML = '<i class="fas fa-download"></i> Save Image';
       
-      // ปุ่ม Share (ใช้ Web Share API)
       const shareBtn = document.createElement("button");
       shareBtn.className = "action-button share-btn";
       shareBtn.innerHTML = '<i class="fas fa-share-alt"></i> Share';
       shareBtn.onclick = async () => {
           try {
-              // แปลง Data URL เป็น Blob เพื่อแชร์
               const blob = await (await fetch(finalImageDataURL)).blob();
               const file = new File([blob], "milkbox-share.png", { type: blob.type });
 
@@ -587,7 +575,7 @@
                       files: [file],
                   });
               } else {
-                  alert("Your browser doesn't support direct sharing. Please save the image first.");
+                  alert("การแชร์โดยตรงยังไม่รองรับบน Browser นี้ (กรุณากด Save Image แทน)");
               }
           } catch (error) {
               console.error("Error sharing:", error);
@@ -595,13 +583,11 @@
       };
 
       actionContainer.appendChild(dlBtn);
-      // เช็คว่า Browser รองรับการแชร์ไฟล์ไหม ถ้าไม่ก็ไม่ต้องโชว์ปุ่ม
       if (navigator.canShare && navigator.canShare({ files: [new File([], 'test.png', {type:'image/png'})] })) {
           actionContainer.appendChild(shareBtn);
       }
 
       frameDiv.appendChild(actionContainer);
-      // เลื่อนหน้าจอลงมาที่รูปผลลัพธ์
       frameDiv.scrollIntoView({ behavior: 'smooth' });
     }
   }
