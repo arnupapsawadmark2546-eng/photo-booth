@@ -51,7 +51,7 @@
       cursor: pointer; color: #999; background: none; border: none;
     }
     
-    /* Donation Button Style */
+    /* Donation Button Style (RIGHT) */
     .donate-btn-top {
       position: absolute; top: 20px; right: 20px;
       background: rgba(255,255,255,0.8); 
@@ -67,6 +67,28 @@
     }
     .donate-btn-top:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
     .donate-btn-top i { color: #ff6b81; }
+
+    /* Home Button Style (LEFT) - NEW */
+    .home-btn-top {
+      position: absolute; top: 20px; left: 20px;
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(4px);
+      border: 1px solid #eee;
+      border-radius: 30px;
+      padding: 8px 16px;
+      cursor: pointer; color: #333;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      font-size: 13px; font-weight: 600; font-family: 'Kanit', sans-serif;
+      transition: 0.2s; z-index: 100;
+      text-decoration: none;
+    }
+    .home-btn-top:hover { 
+      transform: translateY(-2px); 
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1); 
+      background: #fff;
+    }
+    .home-btn-top i { color: #333; }
 
     /* Bank Card Style */
     .bank-card {
@@ -173,6 +195,10 @@
 </head>
 <body>
 
+<a href="https://milkbox-studio.online/" class="home-btn-top">
+  <i class="fas fa-home"></i> หน้าหลัก
+</a>
+
 <button class="donate-btn-top" onclick="toggleModal('donateModal')" title="Support Me">
   <i class="fas fa-mug-hot"></i> สนับสนุน
 </button>
@@ -227,7 +253,8 @@
 </div>
 
 <div class="camera-wrapper">
-  <video id="video" autoplay playsinline muted></video> <div class="flash-overlay" id="flash"></div> 
+  <video id="video" autoplay playsinline muted></video> 
+  <div class="flash-overlay" id="flash"></div> 
   <div id="cameraOverlay">
       <div id="countdownNum">3</div>
       <div style="background:rgba(255,255,255,0.2); padding:5px 15px; border-radius:20px; margin-top:10px; font-weight:600;" id="photoCounterText">Photo 1/4</div>
@@ -324,7 +351,7 @@
   const video = document.getElementById("video");
   const photosDiv = document.getElementById("photos");
   const frameDiv = document.getElementById("frame");
-  const videoResultArea = document.getElementById("videoResultArea"); // NEW
+  const videoResultArea = document.getElementById("videoResultArea"); 
   const captionInput = document.getElementById("captionInput");
   const autoSnapBtn = document.getElementById("autoSnapBtn");
   const flashElem = document.getElementById("flash");
@@ -337,7 +364,7 @@
   let isCapturing = false;
   let stickers = []; 
 
-  // --- Video Recording Variables (NEW) ---
+  // --- Video Recording Variables ---
   let mediaRecorder;
   let recordedChunks = [];
   let videoBlobUrl = null;
@@ -363,25 +390,24 @@
     
     video.style.filter = currentFilter;
 
-    // ขอ Video อย่างเดียว (ถ้าเอา Audio ด้วยให้แก้เป็น audio: true)
+    // ขอ Video อย่างเดียว
     navigator.mediaDevices.getUserMedia({ 
       video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" },
       audio: false 
     }).then(stream => { 
         video.srcObject = stream; 
         video.play(); 
-        setupRecorder(stream); // ตั้งค่าตัวอัดวิดีโอ
+        setupRecorder(stream); 
     })
       .catch(err => { console.error(err); alert("กรุณาอนุญาตให้ใช้กล้อง"); });
   }
 
-  // ฟังก์ชันตั้งค่า Recorder (NEW)
+  // ฟังก์ชันตั้งค่า Recorder
   function setupRecorder(stream) {
-    // เลือก MIME Type ที่ Browser รองรับ
     let options = { mimeType: 'video/webm' };
     if (!MediaRecorder.isTypeSupported('video/webm')) {
         if (MediaRecorder.isTypeSupported('video/mp4')) options = { mimeType: 'video/mp4' };
-        else options = {}; // ให้ Browser เลือกเอง
+        else options = {}; 
     }
 
     try {
@@ -394,16 +420,16 @@
         };
 
         mediaRecorder.onstop = () => {
-             // สร้างไฟล์วิดีโอเมื่อกด Stop
-            const blob = new Blob(recordedChunks, { type: 'video/webm' }); // หรือ type ที่ detect ได้
+            // สร้างไฟล์วิดีโอเมื่อกด Stop
+            const blob = new Blob(recordedChunks, { type: 'video/webm' }); 
             videoBlobUrl = URL.createObjectURL(blob);
             
             // แสดงวิดีโอในหน้าผลลัพธ์
             const videoPlayer = document.getElementById("finalVideoPlayer");
             videoPlayer.src = videoBlobUrl;
-            videoResultArea.style.display = 'flex'; // โชว์กล่องวิดีโอ
+            videoResultArea.style.display = 'flex'; 
             
-            createVideoButtons(blob); // สร้างปุ่ม Save/Share วิดีโอ
+            createVideoButtons(blob); 
         };
     } catch (e) {
         console.error("Recorder Setup Failed:", e);
@@ -432,10 +458,10 @@
     document.getElementById("photoCounterText").innerText = `Photo ${index + 1}/${maxPhotos}`;
     document.getElementById("cameraOverlay").classList.add('active');
 
-    // --- เริ่มอัด/อัดต่อ (NEW) ---
+    // --- เริ่มอัด/อัดต่อ ---
     if (mediaRecorder && mediaRecorder.state !== 'recording') {
-        if (index === 0) mediaRecorder.start(); // เริ่มใหม่ช็อตแรก
-        else mediaRecorder.resume(); // ช็อตต่อไปให้ Resume
+        if (index === 0) mediaRecorder.start(); 
+        else mediaRecorder.resume(); 
     }
 
     let count = 3;
@@ -460,7 +486,7 @@
                 takePhoto(true);
                 document.getElementById("cameraOverlay").classList.remove('active');
                 
-                // รอ 1 วินาทีหลังถ่าย เพื่อเก็บรีแอคชั่น แล้วค่อย Pause วิดีโอ (NEW)
+                // รอ 1 วินาทีหลังถ่าย เพื่อเก็บรีแอคชั่น แล้วค่อย Pause วิดีโอ
                 setTimeout(() => {
                     if (mediaRecorder && mediaRecorder.state === 'recording') {
                         mediaRecorder.pause();
@@ -475,7 +501,7 @@
   }
 
   function finishAutoCapture() {
-    // หยุดอัดวิดีโอ (NEW)
+    // หยุดอัดวิดีโอ
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
         mediaRecorder.stop();
     }
@@ -650,7 +676,7 @@
     frameDiv.appendChild(box);
   }
 
-  // สร้างปุ่ม Save/Share สำหรับ "วิดีโอ" (NEW)
+  // สร้างปุ่ม Save/Share สำหรับ "วิดีโอ"
   function createVideoButtons(blob) {
       const box = document.getElementById("videoActions");
       box.innerHTML = ""; // เคลียร์ปุ่มเก่า
@@ -689,7 +715,7 @@
   function resetApp(clear=true) {
     if(isCapturing) return;
     photos=[]; photosDiv.innerHTML=""; frameDiv.innerHTML=""; stickers=[];
-    videoResultArea.style.display = 'none'; // ซ่อนวิดีโอ
+    videoResultArea.style.display = 'none'; 
     document.getElementById("stickerBar").style.display = "none";
     if(clear) captionInput.value="";
   }
