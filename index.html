@@ -6,10 +6,10 @@
   <title>MILKBOX STUDIO</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Kanit:wght@300;400;600&display=swap');
 
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', 'Kanit', sans-serif; /* เพิ่มฟอนต์ไทย Kanit */
       background-color: #fafafa;
       color: #333;
       margin: 0;
@@ -20,28 +20,104 @@
       min-height: 100vh;
     }
 
-    /* --- ส่วนหัวชื่อแอป --- */
-    .app-title-box {
+    /* --- Modals (Popup) --- */
+    
+    /* 1. Popup เริ่มต้น (Welcome) */
+    #welcomeModal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(5px);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       text-align: center;
-      margin-bottom: 25px;
+      transition: opacity 0.5s ease;
     }
-    .main-title {
-      font-weight: 800;
-      font-size: 24px;
+    
+    /* 2. Popup แนะนำหลังถ่ายเสร็จ (Instruction) */
+    #instructionModal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(255, 255, 255, 0.85); /* ขาวจางๆ */
+      backdrop-filter: blur(4px);
+      z-index: 9998; /* รองลงมาจาก Welcome */
+      display: none; /* ซ่อนไว้ก่อน */
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-content {
+      padding: 30px;
+      border-radius: 24px;
+      max-width: 85%;
+      background: #fff;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      position: relative;
+      text-align: center;
+    }
+
+    /* ปุ่มปิด Popup (X) */
+    .close-modal-btn {
+        position: absolute;
+        top: 15px; right: 20px;
+        font-size: 24px;
+        cursor: pointer;
+        color: #999;
+        background: none;
+        border: none;
+    }
+
+    .modal-title {
+      font-size: 32px;
+      font-weight: 900;
       letter-spacing: 2px;
-      margin: 0;
+      margin-bottom: 5px;
       color: #000;
     }
-    .sub-title {
-      font-weight: 400;
+
+    .modal-subtitle {
       font-size: 12px;
       color: #666;
+      margin-bottom: 30px;
       letter-spacing: 1px;
-      margin-top: 5px;
     }
-    /* ------------------- */
 
-    /* กล้องและ Overlay */
+    .instruction-text {
+        font-size: 16px;
+        color: #333;
+        line-height: 1.6;
+        margin-bottom: 25px;
+        font-weight: 400;
+    }
+
+    .start-btn {
+      padding: 14px 40px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      background: #000;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      transition: transform 0.2s;
+    }
+    .start-btn:active { transform: scale(0.95); }
+
+    /* --- ส่วนประกอบหลักของแอป --- */
+    .app-title-box { text-align: center; margin-bottom: 25px; }
+    .main-title { font-weight: 800; font-size: 24px; letter-spacing: 2px; margin: 0; color: #000; }
+    .sub-title { font-weight: 400; font-size: 12px; color: #666; letter-spacing: 1px; margin-top: 5px; }
+
+    /* กล้อง */
     .camera-wrapper {
       position: relative;
       width: 100%;
@@ -51,13 +127,9 @@
       overflow: hidden;
       box-shadow: 0 15px 40px rgba(0,0,0,0.1);
       background: #000;
+      aspect-ratio: 3/4;
     }
-    
-    video {
-      width: 100%;
-      display: block;
-      transform: scaleX(-1); /* กลับด้านจอมองเห็น */
-    }
+    video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 
     /* Overlay นับถอยหลัง */
     #cameraOverlay {
@@ -69,195 +141,121 @@
       align-items: center;
       background: rgba(0,0,0,0.3);
       color: white;
-      pointer-events: none; /* ให้คลิกทะลุได้ */
+      pointer-events: none;
       opacity: 0;
       transition: opacity 0.3s;
     }
     #cameraOverlay.active { opacity: 1; }
-
-    #countdownNum {
-      font-size: 80px;
-      font-weight: 800;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-    }
+    #countdownNum { font-size: 80px; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
     #photoCounterText {
-      font-size: 16px;
-      font-weight: 600;
+      font-size: 16px; font-weight: 600;
       background: rgba(255,255,255,0.2);
-      padding: 5px 15px;
-      border-radius: 20px;
-      margin-top: 10px;
+      padding: 5px 15px; border-radius: 20px; margin-top: 10px;
     }
 
-    /* กลุ่มปุ่มกด (Control Group) */
+    /* Controls */
     .control-group {
-      background: white;
-      padding: 12px;
-      border-radius: 16px;
-      width: 100%;
-      max-width: 360px;
-      margin-bottom: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      text-align: center;
+      background: white; padding: 12px; border-radius: 16px;
+      width: 100%; max-width: 360px; margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04); text-align: center;
     }
+    .label { font-size: 10px; color: #aaa; margin-bottom: 6px; display: block; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
 
-    .label {
-      font-size: 10px;
-      color: #aaa;
-      margin-bottom: 6px;
-      display: block;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    /* สไตล์ปุ่มเลือก options */
     .option-btn {
-      border: 1px solid transparent;
-      padding: 8px 12px;
-      margin: 2px;
-      border-radius: 10px;
-      font-size: 12px;
-      cursor: pointer;
-      background: #f4f4f4;
-      color: #666;
-      transition: all 0.2s ease;
+      border: 1px solid transparent; padding: 8px 12px; margin: 2px;
+      border-radius: 10px; font-size: 12px; cursor: pointer;
+      background: #f4f4f4; color: #666; transition: all 0.2s ease;
     }
-    .option-btn.active {
-      background: #222;
-      color: #fff;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
+    .option-btn.active { background: #222; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
 
-    /* แถวปุ่มควบคุมหลัก */
     .main-controls {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 15px;
-        margin: 20px 0;
+        display: flex; align-items: center; justify-content: center;
+        gap: 15px; margin: 20px 0;
     }
 
-    /* ปุ่มวงกลม (Auto Snap) */
+    /* ปุ่ม Auto Snap (ปรับให้อยู่ตรงกลางเป๊ะ) */
     .auto-snap-btn {
-      width: 80px;
-      height: 80px;
+      width: 80px; height: 80px;
       border-radius: 50%;
       background: linear-gradient(135deg, #ff6b6b, #ee5253);
       border: 4px solid #fff;
       box-shadow: 0 10px 25px rgba(238, 82, 83, 0.4);
       cursor: pointer;
       display: flex;
-      justify-content: center;
-      align-items: center;
+      justify-content: center; /* แนวนอนกลาง */
+      align-items: center;     /* แนวตั้งกลาง */
+      text-align: center;
       color: white;
       font-weight: bold;
       font-size: 14px;
+      line-height: 1.2;
       text-transform: uppercase;
-      transition: transform 0.1s, filter 0.2s;
+      transition: transform 0.1s;
     }
     .auto-snap-btn:active { transform: scale(0.95); }
-    /* สถานะกำลังถ่าย */
-    .auto-snap-btn.capturing {
-        background: #ccc;
-        box-shadow: none;
-        pointer-events: none;
-        font-size: 12px;
-    }
+    .auto-snap-btn.capturing { background: #ccc; box-shadow: none; pointer-events: none; font-size: 12px; }
 
     .icon-btn {
-        background: white;
-        border: none;
-        width: 50px; height: 50px;
-        border-radius: 50%;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        cursor: pointer;
-        color: #333;
-        font-size: 20px;
-        transition: 0.2s;
+        background: white; border: none; width: 50px; height: 50px;
+        border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        cursor: pointer; color: #333; font-size: 20px; transition: 0.2s;
     }
     .icon-btn:hover { background: #f0f0f0; }
 
-    /* Input ข้อความ */
     input[type="text"] {
-      border: none;
-      background: #fff;
-      padding: 15px;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 300px;
-      text-align: center;
-      font-family: inherit;
-      outline: none;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+      border: none; background: #fff; padding: 15px; border-radius: 12px;
+      width: 100%; max-width: 300px; text-align: center;
+      font-family: inherit; outline: none; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
       margin-bottom: 20px;
     }
-    input:focus { box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
 
-    /* รูปผลลัพธ์ */
-    #photos {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      min-height: 60px; /* กัน layout ขยับ */
-    }
-    #photos img {
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
-      border-radius: 10px;
-      transform: scaleX(-1); /* กลับด้านรูปเล็ก */
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
+    #photos { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; min-height: 60px; }
+    #photos img { width: 60px; height: 60px; object-fit: cover; border-radius: 10px; transform: scaleX(-1); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
 
-    #frame {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    #frame img {
-      max-width: 100%;
-      width: 340px;
-      border-radius: 4px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-    }
+    #frame { display: flex; flex-direction: column; align-items: center; }
+    #frame img { max-width: 100%; width: 340px; border-radius: 4px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
 
-    /* ปุ่ม Action หลังถ่ายเสร็จ */
-    .final-actions {
-        display: flex;
-        gap: 10px;
-        margin-top: 20px;
-    }
+    .final-actions { display: flex; gap: 10px; margin-top: 20px; margin-bottom: 50px; }
     .action-button {
-        padding: 12px 24px;
-        border-radius: 30px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        cursor: pointer;
-        border: none;
-        transition: 0.2s;
+        padding: 12px 24px; border-radius: 30px; text-decoration: none;
+        font-weight: 600; font-size: 14px; display: flex; align-items: center;
+        gap: 8px; cursor: pointer; border: none; transition: 0.2s;
     }
     .dl-btn { background: #000; color: white; }
     .share-btn { background: #fff; color: #333; border: 1px solid #ddd; }
-    .share-btn:hover { background: #f9f9f9; border-color: #ccc;}
-
-    /* ซ่อนองค์ประกอบเมื่อกำลังถ่าย Auto */
+    
     body.is-capturing .control-group,
     body.is-capturing input,
     body.is-capturing #photos,
-    body.is-capturing .icon-btn {
-        opacity: 0.5;
-        pointer-events: none;
-    }
+    body.is-capturing .icon-btn { opacity: 0.5; pointer-events: none; }
   </style>
 </head>
 <body>
+
+<div id="welcomeModal">
+  <div class="modal-content">
+    <div class="modal-title">MILKBOX</div>
+    <div class="modal-subtitle">BY IG MARKENZ9</div>
+    <div style="font-size: 14px; color:#444; margin-bottom: 30px; line-height: 1.6;">
+        Select Layout • Choose Filter • Auto Snap<br>
+        แตะเพื่อเริ่มถ่ายภาพ
+    </div>
+    <button class="start-btn" onclick="closeModalAndStart()">TOUCH TO START</button>
+  </div>
+</div>
+
+<div id="instructionModal">
+  <div class="modal-content" style="max-width: 300px;">
+    <button class="close-modal-btn" onclick="closeInstruction()">&times;</button>
+    <div style="font-size: 40px; margin-bottom: 10px;">✨</div>
+    <h3 style="margin: 0 0 10px 0;">รูปมาแล้ว!</h3>
+    <div class="instruction-text">
+        คุณสามารถพิมพ์แคปชั่น<br>และเปลี่ยนสีกรอบรูปได้ตามใจชอบ<br>ที่เมนูด้านล่างนี้เลย
+    </div>
+    <button class="start-btn" onclick="closeInstruction()" style="background: #333; padding: 10px 30px; font-size: 14px;">โอเค ลุยเลย!</button>
+  </div>
+</div>
+
 
 <div class="app-title-box">
     <h1 class="main-title">MILKBOX</h1>
@@ -289,21 +287,20 @@
 
 <div class="control-group">
   <span class="label">Frame</span>
-  <button onclick="setFrameColor('#ffffff', '#000000')" class="option-btn active">White</button>
-  <button onclick="setFrameColor('#1a1a1a', '#ffffff')" class="option-btn" style="background:#333; color:#fff;">Black</button>
-  <button onclick="setFrameColor('#FADADD', '#C2185B')" class="option-btn" style="background:#FADADD; color:#C2185B;">Pink</button>
-  <button onclick="setFrameColor('#E3F2FD', '#1565C0')" class="option-btn" style="background:#E3F2FD; color:#1565C0;">Blue</button>
+  <button onclick="setFrameColor('#ffffff', '#000000', this)" class="option-btn active">White</button>
+  <button onclick="setFrameColor('#1a1a1a', '#ffffff', this)" class="option-btn" style="background:#333; color:#fff;">Black</button>
+  <button onclick="setFrameColor('#FADADD', '#C2185B', this)" class="option-btn" style="background:#FADADD; color:#C2185B;">Pink</button>
+  <button onclick="setFrameColor('#E3F2FD', '#1565C0', this)" class="option-btn" style="background:#E3F2FD; color:#1565C0;">Blue</button>
 </div>
 
 <div class="main-controls">
-  <button onclick="startCamera()" class="icon-btn" title="Open Camera"><i class="fas fa-camera"></i></button>
   <div id="autoSnapBtn" class="auto-snap-btn" onclick="startAutoCapture()">
-      AUTO SNAP
+      AUTO<br>SNAP
   </div>
   <button onclick="resetApp()" class="icon-btn" title="Reset"><i class="fas fa-redo"></i></button>
 </div>
 
-<input id="captionInput" type="text" placeholder="Add a caption..." oninput="updateCaption()">
+<input id="captionInput" type="text" placeholder="พิมพ์ข้อความที่นี่..." oninput="updateCaption()">
 
 <div id="photos"></div>
 <div id="frame"></div>
@@ -317,53 +314,83 @@
   const countdownNum = document.getElementById("countdownNum");
   const photoCounterText = document.getElementById("photoCounterText");
   const autoSnapBtn = document.getElementById("autoSnapBtn");
+  const welcomeModal = document.getElementById("welcomeModal");
+  const instructionModal = document.getElementById("instructionModal");
 
-  // State Variables
   let photos = [];
   let maxPhotos = 4; 
   let currentLayout = 4;
   let currentFilter = 'none';
   let frameBg = '#ffffff';
   let frameText = '#000000';
-  let is Capturing = false; // สถานะกำลังถ่ายอัตโนมัติ
+  let isCapturing = false;
+  let hasShownInstruction = false; // ตัวแปรเช็คว่าเคยโชว์คำแนะนำไปหรือยัง
 
-  // เริ่มต้นกล้อง
-  function startCamera() {
-    navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720, facingMode: "user" } })
-      .then(stream => { video.srcObject = stream; })
-      .catch(err => alert("Cannot access camera. Please allow permission."));
+  // 1. ปิด Welcome Popup
+  function closeModalAndStart() {
+    welcomeModal.style.opacity = '0';
+    setTimeout(() => {
+        welcomeModal.style.display = 'none';
+        startCamera();
+    }, 500);
   }
 
-  // --- ฟังก์ชันหลักสำหรับการถ่าย Auto ---
-  function startAutoCapture() {
-    if (isCapturing) return; // ป้องกันการกดซ้ำ
-    if (!video.srcObject) { alert("Please open camera first!"); return; }
-    
-    // เคลียร์ของเก่าก่อนเริ่มใหม่
-    resetApp(false); 
-    
-    isCapturing = true;
-    document.body.classList.add('is-capturing'); // เพิ่ม class เพื่อล็อก UI อื่นๆ
-    autoSnapBtn.classList.add('capturing');
-    autoSnapBtn.innerText = "STOP"; // เปลี่ยนปุ่มเผื่ออยากหยุด (ยังไม่ได้ทำฟังก์ชันหยุด แต่ใส่ไว้ก่อน)
+  // 2. ปิด Instruction Popup
+  function closeInstruction() {
+      instructionModal.style.opacity = '0';
+      setTimeout(() => {
+          instructionModal.style.display = 'none';
+      }, 300);
+  }
 
-    // เริ่มกระบวนการถ่ายรูปที่ 1
+  // 3. แสดง Instruction Popup (เรียกใช้เมื่อถ่ายเสร็จ)
+  function showInstruction() {
+      if(hasShownInstruction) return; // ถ้าเคยโชว์แล้วไม่ต้องโชว์ซ้ำ
+      
+      instructionModal.style.display = 'flex';
+      // ใช้ setTimeout นิดนึงให้ Animation สวย
+      setTimeout(() => {
+          instructionModal.style.opacity = '1';
+      }, 100);
+      
+      hasShownInstruction = true;
+  }
+
+  function startCamera() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert("Browser ไม่รองรับ หรือไม่ได้เปิดผ่าน HTTPS");
+      return;
+    }
+    navigator.mediaDevices.getUserMedia({ 
+      video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" } 
+    }).then(stream => { 
+      video.srcObject = stream; video.play();
+    }).catch(err => {
+      console.error(err); alert("กรุณากด 'อนุญาต (Allow)' เพื่อเปิดกล้อง");
+    });
+  }
+
+  function startAutoCapture() {
+    if (isCapturing) return;
+    if (!video.srcObject) { startCamera(); return; }
+    
+    resetApp(false); 
+    isCapturing = true;
+    document.body.classList.add('is-capturing');
+    autoSnapBtn.classList.add('capturing');
+    autoSnapBtn.innerHTML = "STOP"; 
     runCaptureSequence(0);
   }
 
-  // ฟังก์ชันวนลูปถ่ายทีละรูป
   function runCaptureSequence(index) {
-    // ถ้าถ่ายครบแล้ว ให้จบกระบวนการ
     if (index >= maxPhotos) {
         finishAutoCapture();
         return;
     }
 
-    // 1. อัปเดต UI บอกว่ากำลังจะถ่ายรูปที่เท่าไหร่
     photoCounterText.innerText = `Photo ${index + 1}/${maxPhotos}`;
-    cameraOverlay.classList.add('active'); // แสดง Overlay
+    cameraOverlay.classList.add('active');
 
-    // 2. เริ่มนับถอยหลัง 3 วินาที
     let count = 3;
     countdownNum.innerText = count;
     
@@ -372,57 +399,74 @@
         if (count > 0) {
             countdownNum.innerText = count;
         } else {
-            // 3. เมื่อนับถึง 0
             clearInterval(countdownTimer);
             countdownNum.innerText = "CHEESE!";
-            
-            // รอแป๊บนึงแล้วกดถ่าย (เพื่อให้เห็นคำว่า CHEESE)
             setTimeout(() => {
-                takePhoto(true); // ถ่ายรูป (true = มาจาก auto mode)
-                cameraOverlay.classList.remove('active'); // ซ่อน Overlay
-
-                // 4. รอ 1.5 วินาทีก่อนเริ่มถ่ายรูปถัดไป
-                setTimeout(() => {
-                    runCaptureSequence(index + 1); // เรียกตัวเองซ้ำเพื่อถ่ายรูปถัดไป
-                }, 1500); 
-
+                takePhoto(true); 
+                cameraOverlay.classList.remove('active'); 
+                setTimeout(() => { runCaptureSequence(index + 1); }, 1500); 
             }, 500);
         }
-    }, 1000); // นับทุก 1 วินาที
+    }, 1000);
   }
 
-  // จบกระบวนการ Auto Capture
   function finishAutoCapture() {
     isCapturing = false;
     document.body.classList.remove('is-capturing');
     autoSnapBtn.classList.remove('capturing');
-    autoSnapBtn.innerText = "AUTO SNAP";
+    autoSnapBtn.innerHTML = "AUTO<br>SNAP";
+    
+    // 🔴 จุดสำคัญ: ถ่ายเสร็จปุ๊บ สร้างรูปเลย + โชว์คำแนะนำ
+    createFrame();
+    showInstruction();
   }
 
+  function takePhoto(isAuto = false) {
+    if (photos.length >= maxPhotos) return;
+    if (!isAuto && isCapturing) return; 
 
-  // --- ฟังก์ชันอื่นๆ (Layout, Filter, Frame) ---
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+    const ctx = canvas.getContext("2d");
+
+    ctx.filter = currentFilter; 
+    ctx.translate(canvas.width, 0); ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx.filter = 'none'; 
+
+    const imgData = canvas.toDataURL("image/png");
+    photos.push(imgData);
+
+    const thumb = document.createElement("img");
+    thumb.src = imgData; photosDiv.appendChild(thumb);
+
+    // ถ้าถ่ายแบบ Manual จนครบ ก็ให้สร้างรูปเลยเหมือนกัน
+    if (!isCapturing && photos.length === maxPhotos) {
+      createFrame();
+      showInstruction();
+    }
+  }
+
+  // --- ฟังก์ชัน Layout / Filter / Frame ---
   function setLayout(num, btn) {
     if (isCapturing) return;
-    if (photos.length > 0 && !confirm("Changing layout will reset current photos.")) return;
+    if (photos.length > 0 && !confirm("เปลี่ยน Layout รูปจะหายนะ ยืนยันไหม?")) return;
     resetApp();
-    maxPhotos = num;
-    currentLayout = num;
+    maxPhotos = num; currentLayout = num;
     document.querySelectorAll('#layout3, #layout4, #layout6').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
   }
 
   function setFilter(val, btn) {
-    currentFilter = val;
-    video.style.filter = val;
+    currentFilter = val; video.style.filter = val;
     if(btn) {
       btn.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
     }
   }
 
-  function setFrameColor(bg, txt) {
-    frameBg = bg;
-    frameText = txt;
+  function setFrameColor(bg, txt, btn) {
+    frameBg = bg; frameText = txt;
     if(btn) {
       btn.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
@@ -434,160 +478,101 @@
     if (photos.length === maxPhotos) createFrame();
   }
 
-  // ถ่ายรูป 1 ช็อต
-  function takePhoto(isAuto = false) {
-    if (photos.length >= maxPhotos) return;
-    // ถ้าไม่ได้มาจาก auto mode และกำลังถ่าย auto อยู่ ห้ามกดยิงเอง
-    if (!isAuto && isCapturing) return; 
-
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
-
-    // ฝัง Filter + กลับด้าน
-    ctx.filter = currentFilter; 
-    ctx.translate(canvas.width, 0);
-    ctx.scale(-1, 1);
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    ctx.filter = 'none'; 
-
-    const imgData = canvas.toDataURL("image/png");
-    photos.push(imgData);
-
-    const thumb = document.createElement("img");
-    thumb.src = imgData;
-    photosDiv.appendChild(thumb);
-
-    // ถ้าถ่ายครบแล้ว ให้สร้างเฟรม (ถ้าเป็น Auto มันจะไปสร้างตอนจบ loop เอง)
-    if (!isCapturing && photos.length === maxPhotos) {
-      createFrame();
-    }
+  function resetApp(clearCaption = true) {
+    if(isCapturing) return;
+    photos = []; photosDiv.innerHTML = ""; frameDiv.innerHTML = "";
+    if(clearCaption) captionInput.value = "";
+    hasShownInstruction = false; // รีเซ็ตให้โชว์คำแนะนำได้อีกถ้าถ่ายใหม่
   }
 
-  // สร้างรูปผลลัพธ์สุดท้าย
+  // --- วาดรูป ---
   function createFrame() {
     frameDiv.innerHTML = "";
+    // ถ้ายังไม่ได้พิมพ์อะไร ให้ใช้ค่าว่าง (แต่โค้ดจะวาดกรอบรอไว้เลย)
     const caption = captionInput.value || "";
     
     const frameCanvas = document.createElement("canvas");
     const fctx = frameCanvas.getContext("2d");
+    const padding = 50; const gap = 20; const bottomSpace = 160;
 
-    // ตั้งค่า Padding (ขอบ) ให้เยอะหน่อยสำหรับวางลายน้ำ
-    const padding = 50; 
-    const gap = 20;
-    const bottomSpace = 160;
-
-    const images = [];
-    let loaded = 0;
-
+    const images = []; let loaded = 0;
     photos.forEach((src, i) => {
-      const img = new Image();
-      img.src = src;
+      const img = new Image(); img.src = src;
       img.onload = () => {
-        images[i] = img;
-        loaded++;
+        images[i] = img; loaded++;
         if (loaded === maxPhotos) draw();
       };
     });
 
     function draw() {
-      const w = images[0].width;
-      const h = images[0].height;
+      const w = images[0].width; const h = images[0].height;
       let canvasW, canvasH;
 
-      // คำนวณขนาด Canvas ตาม Layout
       if (currentLayout === 3) {
-        canvasW = w + (padding * 2);
-        canvasH = (h * 3) + (gap * 2) + (padding * 2) + bottomSpace;
+        canvasW = w + (padding * 2); canvasH = (h * 3) + (gap * 2) + (padding * 2) + bottomSpace;
       } else if (currentLayout === 4) {
-        canvasW = (w * 2) + gap + (padding * 2);
-        canvasH = (h * 2) + gap + (padding * 2) + bottomSpace;
+        canvasW = (w * 2) + gap + (padding * 2); canvasH = (h * 2) + gap + (padding * 2) + bottomSpace;
       } else if (currentLayout === 6) {
-        canvasW = (w * 2) + gap + (padding * 2);
-        canvasH = (h * 3) + (gap * 2) + (padding * 2) + bottomSpace;
+        canvasW = (w * 2) + gap + (padding * 2); canvasH = (h * 3) + (gap * 2) + (padding * 2) + bottomSpace;
       }
 
-      frameCanvas.width = canvasW;
-      frameCanvas.height = canvasH;
+      frameCanvas.width = canvasW; frameCanvas.height = canvasH;
 
-      // 1. วาดพื้นหลัง
-      fctx.fillStyle = frameBg;
-      fctx.fillRect(0, 0, canvasW, canvasH);
+      fctx.fillStyle = frameBg; fctx.fillRect(0, 0, canvasW, canvasH);
 
-      // 2. วาดรูป
       images.forEach((img, i) => {
         let x, y;
-        if (currentLayout === 3) {
-            x = padding; y = padding + i * (h + gap);
-        } else if (currentLayout === 4) {
-            x = padding + (i%2)*(w+gap); y = padding + Math.floor(i/2)*(h+gap);
-        } else if (currentLayout === 6) {
-            x = padding + (i%2)*(w+gap); y = padding + Math.floor(i/2)*(h+gap);
-        }
+        if (currentLayout === 3) { x = padding; y = padding + i * (h + gap); }
+        else if (currentLayout === 4) { x = padding + (i%2)*(w+gap); y = padding + Math.floor(i/2)*(h+gap); }
+        else if (currentLayout === 6) { x = padding + (i%2)*(w+gap); y = padding + Math.floor(i/2)*(h+gap); }
         fctx.drawImage(img, x, y, w, h);
       });
 
-      // 3. วาด Caption หลัก
-      fctx.fillStyle = frameText;
-      fctx.font = "800 52px 'Inter', sans-serif";
-      fctx.textAlign = "center";
-      fctx.fillText(caption, canvasW / 2, canvasH - 90);
+      fctx.fillStyle = frameText; fctx.font = "800 52px 'Inter', sans-serif";
+      fctx.textAlign = "center"; fctx.fillText(caption, canvasW / 2, canvasH - 90);
 
-      // 4. วาดวันที่
       fctx.font = "400 24px 'Inter', sans-serif";
       fctx.fillText(new Date().toLocaleDateString('en-GB'), canvasW / 2, canvasH - 40);
 
-      // =========================================
-      // 5. 🔴 เพิ่มลายน้ำ (Watermark) ตรงนี้ 🔴
-      // =========================================
-      fctx.save(); // บันทึกสถานะ Canvas
-      fctx.globalAlpha = 0.4; // ทำให้จางลง (Opacity 40%)
-      fctx.font = "600 16px 'Inter', sans-serif"; // ฟอนต์เล็กๆ มินิมอล
-      fctx.fillStyle = frameText; // ใช้สีเดียวกับตัวหนังสือ
-      fctx.textAlign = "right";
-      fctx.letterSpacing = "1px";
-      // วางไว้มุมขวาล่าง (ในพื้นที่ Padding)
+      fctx.save(); fctx.globalAlpha = 0.4; fctx.font = "600 16px 'Inter', sans-serif"; 
+      fctx.fillStyle = frameText; fctx.textAlign = "right"; fctx.letterSpacing = "1px";
       fctx.fillText("MILKBOX BY IG MARKENZ9", canvasW - (padding/2), canvasH - (padding/2));
-      fctx.restore(); // คืนค่าสถานะ Canvas (เผื่อวาดอย่างอื่นต่อ)
-      // =========================================
+      fctx.restore();
 
-
-      // สร้างรูปผลลัพธ์เพื่อแสดงบนหน้าเว็บ
       const finalImage = document.createElement("img");
       const finalImageDataURL = frameCanvas.toDataURL("image/png");
       finalImage.src = finalImageDataURL;
       frameDiv.appendChild(finalImage);
 
-      // --- สร้างปุ่ม Download และ Share ---
       const actionContainer = document.createElement("div");
       actionContainer.className = "final-actions";
 
-      // ปุ่ม Download
       const dlBtn = document.createElement("a");
-      dlBtn.href = finalImageDataURL;
-      dlBtn.download = "milkbox-studio.png";
+      dlBtn.href = finalImageDataURL; dlBtn.download = "milkbox-studio.png";
       dlBtn.className = "action-button dl-btn";
       dlBtn.innerHTML = '<i class="fas fa-download"></i> Save Image';
       
-      // ปุ่ม Share (ใช้ Web Share API)
+      // 🔴 ปุ่ม Share ที่แนบลิ้งค์เว็บไปด้วย
       const shareBtn = document.createElement("button");
       shareBtn.className = "action-button share-btn";
       shareBtn.innerHTML = '<i class="fas fa-share-alt"></i> Share';
       shareBtn.onclick = async () => {
           try {
-              // แปลง Data URL เป็น Blob เพื่อแชร์
               const blob = await (await fetch(finalImageDataURL)).blob();
               const file = new File([blob], "milkbox-share.png", { type: blob.type });
+
+              // ดึง URL ปัจจุบันของเว็บมาใช้ตอนแชร์
+              const currentUrl = window.location.href;
 
               if (navigator.share) {
                   await navigator.share({
                       title: 'My MILKBOX Photo',
-                      text: 'Check out my photo from MILKBOX STUDIO! @markenz9',
+                      text: `มาถ่ายรูปเก๋ๆ ที่ MILKBOX กัน! 📸✨ ลองเล่นเลยที่: ${currentUrl}`,
+                      url: currentUrl, // บาง Browser จะใช้ค่านี้
                       files: [file],
                   });
               } else {
-                  alert("Your browser doesn't support direct sharing. Please save the image first.");
+                  alert("Browser นี้ไม่รองรับการแชร์โดยตรง");
               }
           } catch (error) {
               console.error("Error sharing:", error);
@@ -595,23 +580,15 @@
       };
 
       actionContainer.appendChild(dlBtn);
-      // เช็คว่า Browser รองรับการแชร์ไฟล์ไหม ถ้าไม่ก็ไม่ต้องโชว์ปุ่ม
       if (navigator.canShare && navigator.canShare({ files: [new File([], 'test.png', {type:'image/png'})] })) {
           actionContainer.appendChild(shareBtn);
       }
 
       frameDiv.appendChild(actionContainer);
-      // เลื่อนหน้าจอลงมาที่รูปผลลัพธ์
+      
+      // เลื่อนจอลงมาที่รูปทันที
       frameDiv.scrollIntoView({ behavior: 'smooth' });
     }
-  }
-
-  function resetApp(clearCaption = true) {
-    if(isCapturing) return;
-    photos = [];
-    photosDiv.innerHTML = "";
-    frameDiv.innerHTML = "";
-    if(clearCaption) captionInput.value = "";
   }
 </script>
 
