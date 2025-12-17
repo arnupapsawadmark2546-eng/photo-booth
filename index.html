@@ -62,16 +62,16 @@ function startPhotoBooth() {
     .then(stream => {
       video.srcObject = stream;
 
-      // รอให้กล้องพร้อมก่อนเริ่ม
-      setTimeout(() => {
-        takeWithCountdown();
-      }, 500);
+      video.onloadedmetadata = () => {
+        video.play();   // ⭐ บรรทัดสำคัญ
+      };
     })
     .catch(err => {
       alert("เปิดกล้องไม่ได้");
       console.error(err);
     });
 }
+  
   
 
   if (photos.length > 0) return; // กันกดซ้ำ
