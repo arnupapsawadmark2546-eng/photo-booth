@@ -51,13 +51,13 @@
       cursor: pointer; color: #999; background: none; border: none;
     }
     
-    /* NEW: Donation Button Style (Minimal) */
+    /* Donation Button Style */
     .donate-btn-top {
       position: absolute; top: 20px; right: 20px;
       background: rgba(255,255,255,0.8); 
       backdrop-filter: blur(4px);
       border: 1px solid #eee; 
-      border-radius: 30px; /* Capsule Shape */
+      border-radius: 30px;
       padding: 8px 16px;
       cursor: pointer; color: #333;
       box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
@@ -68,7 +68,7 @@
     .donate-btn-top:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
     .donate-btn-top i { color: #ff6b81; }
 
-    /* NEW: Bank Card Style */
+    /* Bank Card Style */
     .bank-card {
         background: #f8f9fa; border: 1px solid #eee; border-radius: 16px;
         padding: 20px; margin-top: 15px; text-align: left;
@@ -147,14 +147,19 @@
     #photos img { width: 60px; height: 60px; object-fit: cover; border-radius: 10px; transform: scaleX(-1); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
     #frame img { max-width: 100%; width: 340px; border-radius: 4px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
 
-    .final-actions { display: flex; gap: 10px; margin-top: 20px; margin-bottom: 50px; }
+    /* Video Result Area */
+    #videoResultArea { display: none; flex-direction: column; align-items: center; margin-top: 30px; width: 100%; max-width: 340px; }
+    #finalVideoPlayer { width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transform: scaleX(-1); }
+
+    .final-actions { display: flex; gap: 10px; margin-top: 15px; margin-bottom: 10px; }
     .action-button {
-        padding: 12px 24px; border-radius: 30px; text-decoration: none;
-        font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px;
+        padding: 10px 20px; border-radius: 30px; text-decoration: none;
+        font-weight: 600; font-size: 12px; display: flex; align-items: center; gap: 6px;
         cursor: pointer; border: none; transition: 0.2s;
     }
     .dl-btn { background: #000; color: white; }
     .share-btn { background: #fff; color: #333; border: 1px solid #ddd; }
+    .video-btn { background: #ff4757; color: white; } /* สีปุ่มวิดีโอ */
 
     /* Overlay Text */
     #cameraOverlay {
@@ -188,10 +193,10 @@
   <div class="modal-box">
     <button class="close-btn" onclick="toggleModal('instructionModal', false)">&times;</button>
     <div style="font-size: 40px; margin-bottom: 10px;">✨</div>
-    <h3 style="margin: 0 0 10px 0;">รูปมาแล้ว!</h3>
+    <h3 style="margin: 0 0 10px 0;">เรียบร้อย!</h3>
     <p style="font-size:14px; color:#555;">
-      เลื่อนลงเพื่อพิมพ์แคปชั่นและเปลี่ยนสีกรอบ<br>
-      แถมยังกด Emoji เพื่อปั๊มลายได้ด้วยนะ!
+      เลื่อนลงเพื่อแต่งรูป ใส่แคปชั่น<br>
+      และดู <b>วิดีโอโมเมนต์</b> ของคุณได้เลย!
     </p>
     <button class="action-button dl-btn" style="margin: 20px auto 0;" onclick="toggleModal('instructionModal', false)">โอเค ลุยเลย!</button>
   </div>
@@ -222,8 +227,8 @@
 </div>
 
 <div class="camera-wrapper">
-  <video id="video" autoplay playsinline></video>
-  <div class="flash-overlay" id="flash"></div> <div id="cameraOverlay">
+  <video id="video" autoplay playsinline muted></video> <div class="flash-overlay" id="flash"></div> 
+  <div id="cameraOverlay">
       <div id="countdownNum">3</div>
       <div style="background:rgba(255,255,255,0.2); padding:5px 15px; border-radius:20px; margin-top:10px; font-weight:600;" id="photoCounterText">Photo 1/4</div>
   </div>
@@ -271,7 +276,16 @@
 </div>
 
 <div id="photos"></div>
+
 <div id="frame"></div>
+
+<div id="videoResultArea">
+    <h3 style="margin-bottom: 10px; font-size: 16px;">🎥 วิดีโอโมเมนต์ของคุณ</h3>
+    <video id="finalVideoPlayer" controls loop playsinline></video>
+    <div class="final-actions" id="videoActions">
+        </div>
+</div>
+<div style="height: 50px;"></div>
 
 <script>
   // --- Audio Context for Beep & Sound ---
@@ -310,6 +324,7 @@
   const video = document.getElementById("video");
   const photosDiv = document.getElementById("photos");
   const frameDiv = document.getElementById("frame");
+  const videoResultArea = document.getElementById("videoResultArea"); // NEW
   const captionInput = document.getElementById("captionInput");
   const autoSnapBtn = document.getElementById("autoSnapBtn");
   const flashElem = document.getElementById("flash");
@@ -317,11 +332,15 @@
   let photos = [];
   let maxPhotos = 4;
   let currentLayout = 4;
-  // ตั้งค่าเริ่มต้นเป็นโหมดหน้าเนียน (Wink)
   let currentFilter = 'brightness(1.1) contrast(0.9) saturate(1.05)';
   let frameType = 'white'; 
   let isCapturing = false;
   let stickers = []; 
+
+  // --- Video Recording Variables (NEW) ---
+  let mediaRecorder;
+  let recordedChunks = [];
+  let videoBlobUrl = null;
 
   // --- Modal Logic ---
   function toggleModal(id, show = true) {
@@ -342,22 +361,68 @@
       return;
     }
     
-    // ตั้งค่า Filter เริ่มต้นให้ Video ทันที
     video.style.filter = currentFilter;
 
+    // ขอ Video อย่างเดียว (ถ้าเอา Audio ด้วยให้แก้เป็น audio: true)
     navigator.mediaDevices.getUserMedia({ 
-      video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" } 
-    }).then(stream => { video.srcObject = stream; video.play(); })
+      video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" },
+      audio: false 
+    }).then(stream => { 
+        video.srcObject = stream; 
+        video.play(); 
+        setupRecorder(stream); // ตั้งค่าตัวอัดวิดีโอ
+    })
       .catch(err => { console.error(err); alert("กรุณาอนุญาตให้ใช้กล้อง"); });
+  }
+
+  // ฟังก์ชันตั้งค่า Recorder (NEW)
+  function setupRecorder(stream) {
+    // เลือก MIME Type ที่ Browser รองรับ
+    let options = { mimeType: 'video/webm' };
+    if (!MediaRecorder.isTypeSupported('video/webm')) {
+        if (MediaRecorder.isTypeSupported('video/mp4')) options = { mimeType: 'video/mp4' };
+        else options = {}; // ให้ Browser เลือกเอง
+    }
+
+    try {
+        mediaRecorder = new MediaRecorder(stream, options);
+        
+        mediaRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+                recordedChunks.push(event.data);
+            }
+        };
+
+        mediaRecorder.onstop = () => {
+             // สร้างไฟล์วิดีโอเมื่อกด Stop
+            const blob = new Blob(recordedChunks, { type: 'video/webm' }); // หรือ type ที่ detect ได้
+            videoBlobUrl = URL.createObjectURL(blob);
+            
+            // แสดงวิดีโอในหน้าผลลัพธ์
+            const videoPlayer = document.getElementById("finalVideoPlayer");
+            videoPlayer.src = videoBlobUrl;
+            videoResultArea.style.display = 'flex'; // โชว์กล่องวิดีโอ
+            
+            createVideoButtons(blob); // สร้างปุ่ม Save/Share วิดีโอ
+        };
+    } catch (e) {
+        console.error("Recorder Setup Failed:", e);
+    }
   }
 
   function startAutoCapture() {
     if (isCapturing || !video.srcObject) { if(!video.srcObject) startCamera(); return; }
     resetApp(false);
+    
+    // รีเซ็ตค่า Recorder
+    recordedChunks = []; 
+    videoResultArea.style.display = 'none';
+
     isCapturing = true;
     document.body.classList.add('is-capturing');
     autoSnapBtn.classList.add('capturing');
     autoSnapBtn.innerHTML = "<span>STOP</span>";
+    
     runCaptureSequence(0);
   }
 
@@ -366,6 +431,12 @@
 
     document.getElementById("photoCounterText").innerText = `Photo ${index + 1}/${maxPhotos}`;
     document.getElementById("cameraOverlay").classList.add('active');
+
+    // --- เริ่มอัด/อัดต่อ (NEW) ---
+    if (mediaRecorder && mediaRecorder.state !== 'recording') {
+        if (index === 0) mediaRecorder.start(); // เริ่มใหม่ช็อตแรก
+        else mediaRecorder.resume(); // ช็อตต่อไปให้ Resume
+    }
 
     let count = 3;
     document.getElementById("countdownNum").innerText = count;
@@ -388,13 +459,27 @@
                 
                 takePhoto(true);
                 document.getElementById("cameraOverlay").classList.remove('active');
-                setTimeout(() => runCaptureSequence(index + 1), 1500);
+                
+                // รอ 1 วินาทีหลังถ่าย เพื่อเก็บรีแอคชั่น แล้วค่อย Pause วิดีโอ (NEW)
+                setTimeout(() => {
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.pause();
+                    }
+                    // ไปช็อตต่อไป
+                    setTimeout(() => runCaptureSequence(index + 1), 500); 
+                }, 1000); 
+
             }, 300);
         }
     }, 1000);
   }
 
   function finishAutoCapture() {
+    // หยุดอัดวิดีโอ (NEW)
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+    }
+
     isCapturing = false;
     document.body.classList.remove('is-capturing');
     autoSnapBtn.classList.remove('capturing');
@@ -528,48 +613,83 @@
         const finalImg = document.createElement("img");
         finalImg.src = finalUrl;
         frameDiv.appendChild(finalImg);
-        createActionButtons(finalUrl);
+        createImageButtons(finalUrl);
     };
   }
 
-  function createActionButtons(url) {
+  // สร้างปุ่ม Save/Share สำหรับ "รูปภาพ"
+  function createImageButtons(url) {
     const box = document.createElement("div"); box.className = "final-actions";
     
     // Save Button
     const dl = document.createElement("a");
-    dl.href = url; dl.download = "milkbox-studio.png";
+    dl.href = url; dl.download = "milkbox-photo.png";
     dl.className = "action-button dl-btn";
     dl.innerHTML = '<i class="fas fa-download"></i> Save Image';
 
-    // Smart Share Button
+    // Share Button
     const share = document.createElement("button");
     share.className = "action-button share-btn";
-    share.innerHTML = '<i class="fas fa-share-alt"></i> Share';
+    share.innerHTML = '<i class="fas fa-share-alt"></i> Share Image';
     share.onclick = async () => {
         try {
             const blob = await (await fetch(url)).blob();
-            const file = new File([blob], "milkbox.png", { type: blob.type });
+            const file = new File([blob], "milkbox-photo.png", { type: blob.type });
             const shareData = {
-                title: 'MILKBOX STUDIO',
-                text: 'มาถ่ายรูปกันที่ MILKBOX! 📸✨ ลองเล่นเลยที่: ',
-                url: window.location.href, // ลิ้งค์เว็บ
-                files: [file] // รูปภาพ
+                title: 'MILKBOX PHOTO',
+                text: 'รูปถ่ายจาก Milkbox Studio!',
+                files: [file]
             };
-            
             if (navigator.share) await navigator.share(shareData);
-            else alert("Browser นี้ไม่รองรับการแชร์แบบ Smart Share");
+            else alert("Browser ไม่รองรับการแชร์รูป");
         } catch (e) { console.log(e); }
     };
 
     box.appendChild(dl);
     if(navigator.canShare) box.appendChild(share);
     frameDiv.appendChild(box);
-    frameDiv.scrollIntoView({behavior:'smooth'});
+  }
+
+  // สร้างปุ่ม Save/Share สำหรับ "วิดีโอ" (NEW)
+  function createVideoButtons(blob) {
+      const box = document.getElementById("videoActions");
+      box.innerHTML = ""; // เคลียร์ปุ่มเก่า
+
+      const url = URL.createObjectURL(blob);
+
+      // Save Video
+      const dl = document.createElement("a");
+      dl.href = url; dl.download = "milkbox-moment.webm";
+      dl.className = "action-button video-btn";
+      dl.innerHTML = '<i class="fas fa-video"></i> Save Video';
+
+      // Share Video
+      const share = document.createElement("button");
+      share.className = "action-button share-btn";
+      share.innerHTML = '<i class="fas fa-share-alt"></i> Share Video';
+      share.onclick = async () => {
+        try {
+            const file = new File([blob], "milkbox-moment.webm", { type: blob.type });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    title: 'MILKBOX MOMENT',
+                    text: 'ดูวิดีโอโมเมนต์ของฉันสิ!',
+                    files: [file]
+                });
+            } else {
+                alert("Browser นี้ไม่รองรับการแชร์วิดีโอโดยตรง");
+            }
+        } catch (e) { console.log(e); }
+      };
+
+      box.appendChild(dl);
+      if(navigator.canShare) box.appendChild(share);
   }
 
   function resetApp(clear=true) {
     if(isCapturing) return;
     photos=[]; photosDiv.innerHTML=""; frameDiv.innerHTML=""; stickers=[];
+    videoResultArea.style.display = 'none'; // ซ่อนวิดีโอ
     document.getElementById("stickerBar").style.display = "none";
     if(clear) captionInput.value="";
   }
