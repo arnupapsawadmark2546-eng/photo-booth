@@ -95,8 +95,12 @@ function startPhotoBooth() {
       countdownEl.style.display = "none";
 
 function takePhoto() {
-  if (photos.length >= 4) 
+  if (photos.length >= 4) {
+    return;
+  }
 
+  // โค้ดถ่ายรูป
+}
   const canvas = document.createElement("canvas");
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
