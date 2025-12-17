@@ -95,59 +95,74 @@
   }
 
   function createFrame() {
+  frameDiv.innerHTML = "";
+
   const frameCanvas = document.createElement("canvas");
   const fctx = frameCanvas.getContext("2d");
 
-  const img = new Image();
-  img.src = photos[0];
+  const padding = 40;
+  const bottomSpace = 80;
 
-  img.onload = () => {
-    const w = img.width;
-    const h = img.height;
-    const padding = 40; // ความหนากรอบ
+  const images = [];
+  let loaded = 0;
+
+  // โหลดรูปทั้งหมดก่อน
+  photos.forEach((src, i) => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => {
+      images[i] = img;
+      loaded++;
+
+      if (loaded === photos.length) {
+        drawFrame();
+      }
+    };
+  });
+
+  function drawFrame() {
+    const w = images[0].width;
+    const h = images[0].height;
 
     frameCanvas.width = w * 2 + padding * 3;
-    frameCanvas.height = h * 2 + padding * 3 + 60;
+    frameCanvas.height = h * 2 + padding * 3 + bottomSpace;
 
-    // พื้นหลังขาว
+    // 👉 กรอบขาว (พื้นหลัง)
     fctx.fillStyle = "#ffffff";
     fctx.fillRect(0, 0, frameCanvas.width, frameCanvas.height);
 
-    photos.forEach((src, i) => {
-      const image = new Image();
-      image.src = src;
-      image.onload = () => {
-        const x = padding + (i % 2) * (w + padding);
-        const y = padding + Math.floor(i / 2) * (h + padding);
-        fctx.drawImage(image, x, y, w, h);
-      };
+    // วาดรูป 4 รูป
+    images.forEach((img, i) => {
+      const x = padding + (i % 2) * (w + padding);
+      const y = padding + Math.floor(i / 2) * (h + padding);
+      fctx.drawImage(img, x, y, w, h);
     });
 
-    // ข้อความด้านล่าง
+    // ข้อความล่าง
     fctx.fillStyle = "#000";
     fctx.font = "24px Arial";
     fctx.textAlign = "center";
     fctx.fillText(
       "KOREAN PHOTO BOOTH",
       frameCanvas.width / 2,
-      frameCanvas.height - 20
+      frameCanvas.height - 30
     );
 
-    setTimeout(() => {
-      const resultImg = document.createElement("img");
-      resultImg.src = frameCanvas.toDataURL("image/png");
-      resultImg.style.width = "300px";
-      frameDiv.appendChild(resultImg);
+    // แสดงผล
+    const resultImg = document.createElement("img");
+    resultImg.src = frameCanvas.toDataURL("image/png");
+    resultImg.style.width = "300px";
+    frameDiv.appendChild(resultImg);
 
-      const link = document.createElement("a");
-      link.href = resultImg.src;
-      link.download = "photo-booth.png";
-      link.innerText = "⬇️ ดาวน์โหลดรูป";
-      frameDiv.appendChild(document.createElement("br"));
-      frameDiv.appendChild(link);
-    }, 500);
-  };
+    const link = document.createElement("a");
+    link.href = resultImg.src;
+    link.download = "photo-booth.png";
+    link.innerText = "⬇️ ดาวน์โหลดรูป";
+    frameDiv.appendChild(document.createElement("br"));
+    frameDiv.appendChild(link);
+  }
 }
+  
   
 </script>
 
