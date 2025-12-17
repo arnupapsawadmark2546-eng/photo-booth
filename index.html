@@ -148,6 +148,8 @@ for (let i = 0; i < grain.data.length; i += 4) {
 fctx.putImageData(grain, 0, 0);
       fctx.fillStyle = "rgba(255, 220, 180, 0.08)";
 fctx.fillRect(0, 0, frameCanvas.width, frameCanvas.height);
+      fctx.filter = "contrast(0.9) saturate(0.7) sepia(0.12)";
+      
       
     });
 
