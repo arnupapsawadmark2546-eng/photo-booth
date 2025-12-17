@@ -56,7 +56,6 @@
   const photosDiv = document.getElementById("photos");
   const photos = [];
   const countdownEl = document.getElementById("countdown");
-  <script>
   const video = document.getElementById("video");
 
 function startCamera() {
@@ -72,7 +71,8 @@ function startCamera() {
       console.error(err);
     });
 }
-</script>
+  <script>
+  
 
 function startPhotoBooth() {
   navigator.mediaDevices.getUserMedia({ video: true })
