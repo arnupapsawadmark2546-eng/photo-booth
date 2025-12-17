@@ -1,239 +1,77 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>Photo Booth</title>
+  <title>Camera Safe Mode</title>
   <style>
     body {
-      font-family: Arial;
-      background: #f5f5f5;
       text-align: center;
+      font-family: Arial, sans-serif;
     }
     video {
       width: 300px;
+      background: black;
       border-radius: 12px;
     }
     button {
-      padding: 12px 24px;
+      padding: 10px 18px;
       font-size: 16px;
-      margin: 10px;
+      margin: 6px;
     }
-    #countdown {
-      font-size: 48px;
-      color: #ff4d4d;
-      margin: 10px;
-    }
-    canvas {
-      display: none;
-    }
-    #frame {
-      margin-top: 20px;
+    #photos img {
+      width: 70px;
+      margin: 4px;
+      border-radius: 6px;
     }
   </style>
 </head>
 <body>
 
-<h2>📸 Korean Photo Booth</h2>
+<h2>📸 Camera Safe Mode</h2>
 
-<div id="countdown"></div>
-<video id="video" autoplay></video><br>
+<video id="video" autoplay playsinline></video><br><br>
 
-<button onclick="startBooth()">เริ่มถ่าย</button>
+<button onclick="startCamera()">เปิดกล้อง</button>
+<button onclick="takePhoto()">ถ่ายรูป</button>
 
-<canvas id="canvas"></canvas>
-
-<div id="frame"></div>
+<div id="photos"></div>
 
 <script>
   const video = document.getElementById("video");
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
-  const countdownEl = document.getElementById("countdown");
-  const frameDiv = document.getElementById("frame");
   const photosDiv = document.getElementById("photos");
-const frameDiv = document.getElementById("frame");
+  const photos = [];
 
-
-  navigator.mediaDevices.getUserMedia({ video: true })
-    .then(stream => video.srcObject = stream);
-
-  let photos = [];
-
-  function startBooth() {
-    photos = [];
-    frameDiv.innerHTML = "";
-    takeWithCountdown(4);
+  function startCamera() {
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(err => {
+        alert("เปิดกล้องไม่ได้");
+        console.error(err);
+      });
   }
 
-  function takeWithCountdown(remaining) {
-    if (remaining === 0) {
-      createFrame();
+  function takePhoto() {
+    if (video.videoWidth === 0) {
+      alert("กรุณากดเปิดกล้องก่อน");
       return;
     }
 
-    let count = 3;
-    countdownEl.innerText = count;
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
 
-    const timer = setInterval(() => {
-      count--;
-      if (count === 0) {
-        clearInterval(timer);
-        countdownEl.innerText = "📸";
-        takePhoto();
-        setTimeout(() => {
-          countdownEl.innerText = "";
-          takeWithCountdown(remaining - 1);
-        }, 800);
-      } else {
-        countdownEl.innerText = count;
-      }
-    }, 1000);
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const imgData = canvas.toDataURL("image/png");
+    photos.push(imgData);
+
+    const img = document.createElement("img");
+    img.src = imgData;
+    photosDiv.appendChild(img);
   }
-
- function takePhoto() {
-  if (video.videoWidth === 0) {
-    alert("กรุณากดเปิดกล้องก่อน");
-    return;
-  }
-
-  if (photos.length >= 4) return;
-
-  const canvas = document.createElement("canvas");
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-
-  const ctx = canvas.getContext("2d");
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  const imgData = canvas.toDataURL("image/png");
-  photos.push(imgData);
-
-  // แสดงรูปที่ถ่าย
-  const thumb = document.createElement("img");
-  thumb.src = imgData;
-  thumb.style.width = "70px";
-  thumb.style.margin = "4px";
-  thumb.style.borderRadius = "6px";
-  photosDiv.appendChild(thumb);
-
-  // ครบ 4 รูป → รวมกรอบ
-  if (photos.length === 4) {
-    createFrame();
-  }
-}
-
-  if (photos.length >= 4) return;
-
-  const canvas = document.createElement("canvas");
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-
-  const ctx = canvas.getContext("2d");
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  const imgData = canvas.toDataURL("image/png");
-  photos.push(imgData);
-
-  // ✅ แสดงรูปที่ถ่าย (สำคัญมาก)
-  const thumb = document.createElement("img");
-  thumb.src = imgData;
-  thumb.style.width = "70px";
-  thumb.style.margin = "4px";
-  thumb.style.borderRadius = "6px";
-  photosDiv.appendChild(thumb);
-
-  // ถ้าครบ 4 รูป → รวมกรอบ
-  if (photos.length === 4) {
-    createFrame();
-  }
-}
-
-  function createFrame() {
-  frameDiv.innerHTML = "";
-
-  const caption = document.getElementById("captionInput").value || "";
-
-  const frameCanvas = document.createElement("canvas");
-  const fctx = frameCanvas.getContext("2d");
-
-  const padding = 20;
-  const bottomSpace = 90;
-
-  const images = [];
-  let loaded = 0;
-
-  photos.forEach((src, i) => {
-    const img = new Image();
-    img.src = src;
-    img.onload = () => {
-      images[i] = img;
-      loaded++;
-      if (loaded === 4) draw();
-    };
-  });
-
-  function draw() {
-    const w = images[0].width;
-    const h = images[0].height;
-
-    frameCanvas.width = w * 2 + padding * 3;
-    frameCanvas.height = h * 2 + padding * 3 + bottomSpace;
-
-    // กรอบขาว
-    fctx.fillStyle = "#fff";
-    fctx.fillRect(0, 0, frameCanvas.width, frameCanvas.height);
-
-    // วาดรูป + โทน
-    images.forEach((img, i) => {
-      const x = padding + (i % 2) * (w + padding);
-      const y = padding + Math.floor(i / 2) * (h + padding);
-
-      if (currentTone === "film") {
-        fctx.filter = "contrast(0.9) saturate(0.85) brightness(1.05)";
-      } else if (currentTone === "bw") {
-        fctx.filter = "grayscale(1) contrast(1.1)";
-      } else {
-        fctx.filter = "none";
-      }
-
-      fctx.drawImage(img, x, y, w, h);
-      fctx.filter = "none";
-    });
-
-    // caption
-    fctx.fillStyle = "#000";
-    fctx.font = "22px Arial";
-    fctx.textAlign = "center";
-    fctx.fillText(
-      caption,
-      frameCanvas.width / 2,
-      frameCanvas.height - 55
-    );
-
-    // วันที่ฟิล์ม
-    fctx.fillStyle = "#666";
-    fctx.font = "16px 'Courier New', monospace";
-    fctx.fillText(
-      getFilmDate(),
-      frameCanvas.width / 2,
-      frameCanvas.height - 28
-    );
-
-    const result = document.createElement("img");
-    result.src = frameCanvas.toDataURL("image/png");
-    result.style.width = "300px";
-    frameDiv.appendChild(result);
-  
-    const link = document.createElement("a");
-    link.href = resultImg.src;
-    link.download = "photo-booth.png";
-    link.innerText = "⬇️ ดาวน์โหลดรูป";
-    frameDiv.appendChild(document.createElement("br"));
-    frameDiv.appendChild(link);
-  }
-}
-  
-  
 </script>
 
 </body>
