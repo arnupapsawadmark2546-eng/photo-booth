@@ -67,6 +67,51 @@ function startPhotoBooth() {
 
   takeWithCountdown();
 }
+ function takeWithCountdown() {
+  if (photos.length >= 4) {
+    createFrame(); // รวมภาพ
+    return;
+  }
+
+  let count = 3;
+  countdownEl.style.display = "block";
+  countdownEl.innerText = count;
+
+  const timer = setInterval(() => {
+    count--;
+    if (count === 0) {
+      clearInterval(timer);
+      countdownEl.style.display = "none";
+
+function takePhoto() {
+  if (photos.length >= 4) return;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  const ctx = canvas.getContext("2d");
+  ctx.filter = "contrast(1.1) saturate(1.2) sepia(0.2)";
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  ctx.filter = "none";
+
+  const imgData = canvas.toDataURL("image/png");
+  photos.push(imgData);
+
+  // แสดงรูปเล็ก
+  const img = document.createElement("img");
+  img.src = imgData;
+  img.style.width = "70px";
+  img.style.margin = "4px";
+  img.style.borderRadius = "6px";
+  photosDiv.appendChild(img);
+
+  // ⬅️ บรรทัดนี้แหละคือ STEP 4
+  if (photos.length === 4) {
+    createFrame();
+  }
+}
+      
   
 
   let count = 3;
