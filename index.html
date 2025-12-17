@@ -93,7 +93,7 @@
     ctx.drawImage(video, 0, 0);
     photos.push(canvas.toDataURL("image/png"));
   }
-
+const caption = document.getElementById("captionInput").value || "";
 function createFrame() {
   frameDiv.innerHTML = "";
 
@@ -142,11 +142,16 @@ function createFrame() {
     fctx.fillStyle = "#000";
     fctx.font = "24px Arial";
     fctx.textAlign = "center";
-    fctx.fillText(
-      "KOREAN PHOTO BOOTH",
-      frameCanvas.width / 2,
-      frameCanvas.height - 30
-    );
+    // ข้อความใต้รูป (จากที่พิมพ์)
+fctx.fillStyle = "#000";
+fctx.font = "28px Arial";
+fctx.textAlign = "center";
+fctx.fillText(
+  caption,
+  frameCanvas.width / 2,
+  frameCanvas.height - 30
+);
+
 
     // แสดงผล
     const resultImg = document.createElement("img");
@@ -162,7 +167,12 @@ function createFrame() {
     frameDiv.appendChild(link);
   }
 }
-
+<br>
+<input 
+  id="captionInput" 
+  type="text" 
+  placeholder="พิมพ์ข้อความใต้รูป..."
+  style="padding:10px; width:260px; font-size:16px; text-align:center;"
 </script>
 
 </body>
