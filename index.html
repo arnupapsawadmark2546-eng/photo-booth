@@ -5,52 +5,135 @@
   <title>Photo Booth</title>
   <style>
     body {
-      text-align: center;
       font-family: Arial;
-      background: #f8f8f8;
+      background: #f5f5f5;
+      text-align: center;
     }
     video {
       width: 300px;
       border-radius: 12px;
     }
     button {
-      padding: 10px 20px;
+      padding: 12px 24px;
       font-size: 16px;
-      margin-top: 10px;
+      margin: 10px;
     }
-    img {
-      width: 300px;
-      margin-top: 10px;
+    #countdown {
+      font-size: 48px;
+      color: #ff4d4d;
+      margin: 10px;
+    }
+    canvas {
+      display: none;
+    }
+    #frame {
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
 
-<h2>📸 My Photo Booth</h2>
-<video id="video" autoplay></video><br>
-<button onclick="takePhoto()">ถ่ายรูป</button>
+<h2>📸 Korean Photo Booth</h2>
 
-<canvas id="canvas" style="display:none"></canvas>
-<img id="photo">
+<div id="countdown"></div>
+<video id="video" autoplay></video><br>
+
+<button onclick="startBooth()">เริ่มถ่าย</button>
+
+<canvas id="canvas"></canvas>
+
+<div id="frame"></div>
 
 <script>
   const video = document.getElementById("video");
   const canvas = document.getElementById("canvas");
-  const photo = document.getElementById("photo");
+  const ctx = canvas.getContext("2d");
+  const countdownEl = document.getElementById("countdown");
+  const frameDiv = document.getElementById("frame");
 
   navigator.mediaDevices.getUserMedia({ video: true })
     .then(stream => video.srcObject = stream);
 
+  let photos = [];
+
+  function startBooth() {
+    photos = [];
+    frameDiv.innerHTML = "";
+    takeWithCountdown(4);
+  }
+
+  function takeWithCountdown(remaining) {
+    if (remaining === 0) {
+      createFrame();
+      return;
+    }
+
+    let count = 3;
+    countdownEl.innerText = count;
+
+    const timer = setInterval(() => {
+      count--;
+      if (count === 0) {
+        clearInterval(timer);
+        countdownEl.innerText = "📸";
+        takePhoto();
+        setTimeout(() => {
+          countdownEl.innerText = "";
+          takeWithCountdown(remaining - 1);
+        }, 800);
+      } else {
+        countdownEl.innerText = count;
+      }
+    }, 1000);
+  }
+
   function takePhoto() {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
     ctx.drawImage(video, 0, 0);
-    photo.src = canvas.toDataURL("image/png");
+    photos.push(canvas.toDataURL("image/png"));
+  }
+
+  function createFrame() {
+    const frameCanvas = document.createElement("canvas");
+    const fctx = frameCanvas.getContext("2d");
+
+    const img = new Image();
+    img.src = photos[0];
+
+    img.onload = () => {
+      const w = img.width;
+      const h = img.height;
+
+      frameCanvas.width = w * 2;
+      frameCanvas.height = h * 2;
+
+      photos.forEach((src, i) => {
+        const image = new Image();
+        image.src = src;
+        image.onload = () => {
+          const x = (i % 2) * w;
+          const y = Math.floor(i / 2) * h;
+          fctx.drawImage(image, x, y, w, h);
+        };
+      });
+
+      setTimeout(() => {
+        const resultImg = document.createElement("img");
+        resultImg.src = frameCanvas.toDataURL("image/png");
+        resultImg.style.width = "300px";
+        frameDiv.appendChild(resultImg);
+
+        const link = document.createElement("a");
+        link.href = resultImg.src;
+        link.download = "photo-booth.png";
+        link.innerText = "⬇️ ดาวน์โหลดรูป";
+        frameDiv.appendChild(document.createElement("br"));
+        frameDiv.appendChild(link);
+      }, 500);
+    };
   }
 </script>
 
 </body>
 </html>
-ส่งแล้ว
-เขียนถึง
