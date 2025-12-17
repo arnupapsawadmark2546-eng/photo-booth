@@ -155,10 +155,24 @@ fctx.putImageData(grain, 0, 0);
     fctx.fillStyle = "#000";
     fctx.font = "24px Arial";
     fctx.textAlign = "center";
-    fctx.fillText(
-      "Daonuea IN China",
-      frameCanvas.width / 2,
-      frameCanvas.height - 30
+    // ข้อความ
+fctx.fillStyle = "#000";
+fctx.font = "24px Arial";
+fctx.textAlign = "center";
+fctx.fillText(
+  caption,
+  frameCanvas.width / 2,
+  frameCanvas.height - 50
+);
+
+// วันที่ฟิล์ม
+fctx.fillStyle = "#666";
+fctx.font = "18px monospace";
+fctx.fillText(
+  getFilmDate(),
+  frameCanvas.width / 2,
+  frameCanvas.height - 22
+);
     );
 
     // แสดงผล
