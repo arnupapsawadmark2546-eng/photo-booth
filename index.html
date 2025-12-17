@@ -9,7 +9,7 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Kanit:wght@300;400;600&display=swap');
 
     body {
-      font-family: 'Inter', 'Kanit', sans-serif; /* เพิ่มฟอนต์ไทย Kanit */
+      font-family: 'Inter', 'Kanit', sans-serif;
       background-color: #fafafa;
       color: #333;
       margin: 0;
@@ -20,138 +20,59 @@
       min-height: 100vh;
     }
 
-    /* --- Modals (Popup) --- */
+    /* --- ANIMATIONS --- */
+    @keyframes flashAnimation {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    .flash-overlay {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: white; pointer-events: none; opacity: 0; z-index: 10;
+    }
+    .flash-active { animation: flashAnimation 0.15s ease-out; }
+
+    /* --- MODALS --- */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(5px); z-index: 9999;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      text-align: center; transition: opacity 0.3s; opacity: 0; pointer-events: none;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
     
-    /* 1. Popup เริ่มต้น (Welcome) */
-    #welcomeModal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(5px);
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      transition: opacity 0.5s ease;
+    .modal-box {
+      background: white; padding: 30px; border-radius: 24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+      max-width: 85%; width: 320px; position: relative;
+    }
+    .close-btn {
+      position: absolute; top: 15px; right: 20px; font-size: 24px;
+      cursor: pointer; color: #999; background: none; border: none;
     }
     
-    /* 2. Popup แนะนำหลังถ่ายเสร็จ (Instruction) */
-    #instructionModal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(255, 255, 255, 0.85); /* ขาวจางๆ */
-      backdrop-filter: blur(4px);
-      z-index: 9998; /* รองลงมาจาก Welcome */
-      display: none; /* ซ่อนไว้ก่อน */
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      opacity: 0;
-      transition: opacity 0.3s ease;
+    /* Donation Specific */
+    .donate-btn-top {
+      position: absolute; top: 20px; right: 20px;
+      background: white; border: 1px solid #eee; border-radius: 50%;
+      width: 40px; height: 40px; cursor: pointer; color: #ff4757;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center;
+      font-size: 18px; transition: 0.2s; z-index: 100;
     }
+    .donate-btn-top:hover { transform: scale(1.1); background: #fff0f0; }
 
-    .modal-content {
-      padding: 30px;
-      border-radius: 24px;
-      max-width: 85%;
-      background: #fff;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-      position: relative;
-      text-align: center;
-    }
+    /* --- APP UI --- */
+    .app-title-box { text-align: center; margin-bottom: 20px; margin-top: 10px; }
+    .main-title { font-weight: 800; font-size: 26px; letter-spacing: 2px; margin: 0; }
+    .sub-title { font-size: 12px; color: #666; letter-spacing: 1px; margin-top: 5px; }
 
-    /* ปุ่มปิด Popup (X) */
-    .close-modal-btn {
-        position: absolute;
-        top: 15px; right: 20px;
-        font-size: 24px;
-        cursor: pointer;
-        color: #999;
-        background: none;
-        border: none;
-    }
-
-    .modal-title {
-      font-size: 32px;
-      font-weight: 900;
-      letter-spacing: 2px;
-      margin-bottom: 5px;
-      color: #000;
-    }
-
-    .modal-subtitle {
-      font-size: 12px;
-      color: #666;
-      margin-bottom: 30px;
-      letter-spacing: 1px;
-    }
-
-    .instruction-text {
-        font-size: 16px;
-        color: #333;
-        line-height: 1.6;
-        margin-bottom: 25px;
-        font-weight: 400;
-    }
-
-    .start-btn {
-      padding: 14px 40px;
-      font-size: 16px;
-      font-weight: bold;
-      color: white;
-      background: #000;
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-      transition: transform 0.2s;
-    }
-    .start-btn:active { transform: scale(0.95); }
-
-    /* --- ส่วนประกอบหลักของแอป --- */
-    .app-title-box { text-align: center; margin-bottom: 25px; }
-    .main-title { font-weight: 800; font-size: 24px; letter-spacing: 2px; margin: 0; color: #000; }
-    .sub-title { font-weight: 400; font-size: 12px; color: #666; letter-spacing: 1px; margin-top: 5px; }
-
-    /* กล้อง */
+    /* Camera */
     .camera-wrapper {
-      position: relative;
-      width: 100%;
-      max-width: 350px;
-      margin-bottom: 20px;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.1);
-      background: #000;
-      aspect-ratio: 3/4;
+      position: relative; width: 100%; max-width: 350px; margin-bottom: 20px;
+      border-radius: 20px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+      background: #000; aspect-ratio: 3/4;
     }
     video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-
-    /* Overlay นับถอยหลัง */
-    #cameraOverlay {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: rgba(0,0,0,0.3);
-      color: white;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    #cameraOverlay.active { opacity: 1; }
-    #countdownNum { font-size: 80px; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-    #photoCounterText {
-      font-size: 16px; font-weight: 600;
-      background: rgba(255,255,255,0.2);
-      padding: 5px 15px; border-radius: 20px; margin-top: 10px;
-    }
 
     /* Controls */
     .control-group {
@@ -159,103 +80,116 @@
       width: 100%; max-width: 360px; margin-bottom: 10px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.04); text-align: center;
     }
-    .label { font-size: 10px; color: #aaa; margin-bottom: 6px; display: block; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-
+    .label { font-size: 10px; color: #aaa; margin-bottom: 6px; display: block; font-weight: 600; text-transform: uppercase; }
+    
     .option-btn {
       border: 1px solid transparent; padding: 8px 12px; margin: 2px;
       border-radius: 10px; font-size: 12px; cursor: pointer;
-      background: #f4f4f4; color: #666; transition: all 0.2s ease;
+      background: #f4f4f4; color: #666; transition: 0.2s;
     }
-    .option-btn.active { background: #222; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .option-btn.active { background: #111; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
 
-    .main-controls {
-        display: flex; align-items: center; justify-content: center;
-        gap: 15px; margin: 20px 0;
-    }
-
-    /* ปุ่ม Auto Snap (ปรับให้อยู่ตรงกลางเป๊ะ) */
+    /* Auto Snap Button */
+    .main-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 20px 0; }
     .auto-snap-btn {
-      width: 80px; height: 80px;
-      border-radius: 50%;
+      width: 80px; height: 80px; border-radius: 50%;
       background: linear-gradient(135deg, #ff6b6b, #ee5253);
-      border: 4px solid #fff;
-      box-shadow: 0 10px 25px rgba(238, 82, 83, 0.4);
-      cursor: pointer;
-      display: flex;
-      justify-content: center; /* แนวนอนกลาง */
-      align-items: center;     /* แนวตั้งกลาง */
-      text-align: center;
-      color: white;
-      font-weight: bold;
-      font-size: 14px;
-      line-height: 1.2;
-      text-transform: uppercase;
+      border: 4px solid #fff; box-shadow: 0 10px 25px rgba(238, 82, 83, 0.4);
+      cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center;
+      color: white; font-weight: bold; font-size: 13px; line-height: 1.1; text-transform: uppercase;
       transition: transform 0.1s;
     }
     .auto-snap-btn:active { transform: scale(0.95); }
-    .auto-snap-btn.capturing { background: #ccc; box-shadow: none; pointer-events: none; font-size: 12px; }
+    .auto-snap-btn.capturing { background: #ccc; box-shadow: none; pointer-events: none; }
 
     .icon-btn {
         background: white; border: none; width: 50px; height: 50px;
         border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        cursor: pointer; color: #333; font-size: 20px; transition: 0.2s;
+        cursor: pointer; color: #333; font-size: 18px; transition: 0.2s;
     }
-    .icon-btn:hover { background: #f0f0f0; }
 
     input[type="text"] {
       border: none; background: #fff; padding: 15px; border-radius: 12px;
-      width: 100%; max-width: 300px; text-align: center;
-      font-family: inherit; outline: none; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-      margin-bottom: 20px;
+      width: 100%; max-width: 300px; text-align: center; font-family: inherit;
+      outline: none; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px;
     }
 
+    /* Sticker Bar */
+    .sticker-bar {
+      display: none; justify-content: center; gap: 10px; margin-bottom: 15px;
+      background: white; padding: 10px; border-radius: 50px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    .sticker-btn { font-size: 24px; cursor: pointer; background: none; border: none; transition: 0.2s; }
+    .sticker-btn:hover { transform: scale(1.2); }
+
+    /* Result Area */
     #photos { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; min-height: 60px; }
     #photos img { width: 60px; height: 60px; object-fit: cover; border-radius: 10px; transform: scaleX(-1); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-
-    #frame { display: flex; flex-direction: column; align-items: center; }
     #frame img { max-width: 100%; width: 340px; border-radius: 4px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
 
     .final-actions { display: flex; gap: 10px; margin-top: 20px; margin-bottom: 50px; }
     .action-button {
         padding: 12px 24px; border-radius: 30px; text-decoration: none;
-        font-weight: 600; font-size: 14px; display: flex; align-items: center;
-        gap: 8px; cursor: pointer; border: none; transition: 0.2s;
+        font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px;
+        cursor: pointer; border: none; transition: 0.2s;
     }
     .dl-btn { background: #000; color: white; }
     .share-btn { background: #fff; color: #333; border: 1px solid #ddd; }
-    
-    body.is-capturing .control-group,
-    body.is-capturing input,
-    body.is-capturing #photos,
-    body.is-capturing .icon-btn { opacity: 0.5; pointer-events: none; }
+
+    /* Overlay Text */
+    #cameraOverlay {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      background: rgba(0,0,0,0.3); color: white; pointer-events: none; opacity: 0;
+    }
+    #cameraOverlay.active { opacity: 1; }
+    #countdownNum { font-size: 80px; font-weight: 800; }
   </style>
 </head>
 <body>
 
-<div id="welcomeModal">
-  <div class="modal-content">
-    <div class="modal-title">MILKBOX</div>
-    <div class="modal-subtitle">BY IG MARKENZ9</div>
-    <div style="font-size: 14px; color:#444; margin-bottom: 30px; line-height: 1.6;">
-        Select Layout • Choose Filter • Auto Snap<br>
-        แตะเพื่อเริ่มถ่ายภาพ
-    </div>
-    <button class="start-btn" onclick="closeModalAndStart()">TOUCH TO START</button>
+<button class="donate-btn-top" onclick="toggleModal('donateModal')" title="Support Me">
+  <i class="fas fa-heart"></i>
+</button>
+
+<div id="welcomeModal" class="modal-overlay open">
+  <div class="modal-box">
+    <h1 style="margin:0; font-size:32px;">MILKBOX</h1>
+    <p style="color:#666; margin-top:5px; font-size:12px;">BY IG MARKENZ9</p>
+    <p style="font-size:14px; margin: 30px 0; color:#444;">
+      Select Layout • Choose Filter • Auto Snap<br>
+      แตะปุ่มด้านล่างเพื่อเริ่มใช้งาน
+    </p>
+    <button class="action-button dl-btn" style="margin: 0 auto;" onclick="closeWelcome()">TOUCH TO START</button>
   </div>
 </div>
 
-<div id="instructionModal">
-  <div class="modal-content" style="max-width: 300px;">
-    <button class="close-modal-btn" onclick="closeInstruction()">&times;</button>
+<div id="instructionModal" class="modal-overlay">
+  <div class="modal-box">
+    <button class="close-btn" onclick="toggleModal('instructionModal', false)">&times;</button>
     <div style="font-size: 40px; margin-bottom: 10px;">✨</div>
     <h3 style="margin: 0 0 10px 0;">รูปมาแล้ว!</h3>
-    <div class="instruction-text">
-        คุณสามารถพิมพ์แคปชั่น<br>และเปลี่ยนสีกรอบรูปได้ตามใจชอบ<br>ที่เมนูด้านล่างนี้เลย
-    </div>
-    <button class="start-btn" onclick="closeInstruction()" style="background: #333; padding: 10px 30px; font-size: 14px;">โอเค ลุยเลย!</button>
+    <p style="font-size:14px; color:#555;">
+      เลื่อนลงเพื่อพิมพ์แคปชั่นและเปลี่ยนสีกรอบ<br>
+      แถมยังกด Emoji เพื่อปั๊มลายได้ด้วยนะ!
+    </p>
+    <button class="action-button dl-btn" style="margin: 20px auto 0;" onclick="toggleModal('instructionModal', false)">โอเค ลุยเลย!</button>
   </div>
 </div>
 
+<div id="donateModal" class="modal-overlay">
+  <div class="modal-box">
+    <button class="close-btn" onclick="toggleModal('donateModal', false)">&times;</button>
+    <h3 style="margin-top:0;">Support Me 💖</h3>
+    <p style="font-size:14px; color:#666;">เลี้ยงกาแฟผมได้ที่นี่ครับ</p>
+    
+    <img src="qrcode.jpg" 
+         style="width:200px; height:auto; border-radius:10px; margin: 10px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.1);" 
+         alt="QR Code PromptPay">
+    <p style="font-size:14px; font-weight:bold; margin: 5px 0;">คุณ ณัฐ อานุภาพสวัสดิ์</p>
+    <p style="font-size:12px; color:#aaa;">(หรือติดตามผลงานที่ IG: markenz9)</p>
+  </div>
+</div>
 
 <div class="app-title-box">
     <h1 class="main-title">MILKBOX</h1>
@@ -264,17 +198,17 @@
 
 <div class="camera-wrapper">
   <video id="video" autoplay playsinline></video>
-  <div id="cameraOverlay">
+  <div class="flash-overlay" id="flash"></div> <div id="cameraOverlay">
       <div id="countdownNum">3</div>
-      <div id="photoCounterText">Photo 1/4</div>
+      <div style="background:rgba(255,255,255,0.2); padding:5px 15px; border-radius:20px; margin-top:10px; font-weight:600;" id="photoCounterText">Photo 1/4</div>
   </div>
 </div>
 
 <div class="control-group">
   <span class="label">Layout</span>
-  <button id="layout3" onclick="setLayout(3, this)" class="option-btn">Strip (3)</button>
-  <button id="layout4" onclick="setLayout(4, this)" class="option-btn active">Grid (4)</button>
-  <button id="layout6" onclick="setLayout(6, this)" class="option-btn">Big (6)</button>
+  <button onclick="setLayout(3, this)" class="option-btn">Strip (3)</button>
+  <button onclick="setLayout(4, this)" class="option-btn active">Grid (4)</button>
+  <button onclick="setLayout(6, this)" class="option-btn">Big (6)</button>
 </div>
 
 <div class="control-group">
@@ -282,80 +216,100 @@
   <button onclick="setFilter('none', this)" class="option-btn active">Normal</button>
   <button onclick="setFilter('brightness(1.15) saturate(0.9) contrast(0.95)', this)" class="option-btn">🇰🇷 Soft</button>
   <button onclick="setFilter('brightness(1.1) contrast(1.15) sepia(0.2)', this)" class="option-btn">🇯🇵 Film</button>
-  <button onclick="setFilter('brightness(1.2) contrast(1.05) grayscale(1)', this)" class="option-btn">☁️ Mono</button>
+  <button onclick="setFilter('grayscale(100%) contrast(1.1)', this)" class="option-btn">☁️ Mono</button>
 </div>
 
 <div class="control-group">
-  <span class="label">Frame</span>
-  <button onclick="setFrameColor('#ffffff', '#000000', this)" class="option-btn active">White</button>
-  <button onclick="setFrameColor('#1a1a1a', '#ffffff', this)" class="option-btn" style="background:#333; color:#fff;">Black</button>
-  <button onclick="setFrameColor('#FADADD', '#C2185B', this)" class="option-btn" style="background:#FADADD; color:#C2185B;">Pink</button>
-  <button onclick="setFrameColor('#E3F2FD', '#1565C0', this)" class="option-btn" style="background:#E3F2FD; color:#1565C0;">Blue</button>
+  <span class="label">Frame Style</span>
+  <button onclick="setFrameType('white', this)" class="option-btn active">White</button>
+  <button onclick="setFrameType('black', this)" class="option-btn" style="background:#333; color:#fff;">Black</button>
+  <button onclick="setFrameType('gradient', this)" class="option-btn" style="background:linear-gradient(45deg, #ff9a9e, #fad0c4); color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.3);">Grad.</button>
+  <button onclick="setFrameType('pattern', this)" class="option-btn">Pattern</button>
 </div>
 
 <div class="main-controls">
   <div id="autoSnapBtn" class="auto-snap-btn" onclick="startAutoCapture()">
-      AUTO<br>SNAP
+      <span>AUTO</span><span>SNAP</span>
   </div>
   <button onclick="resetApp()" class="icon-btn" title="Reset"><i class="fas fa-redo"></i></button>
 </div>
 
-<input id="captionInput" type="text" placeholder="พิมพ์ข้อความที่นี่..." oninput="updateCaption()">
+<input id="captionInput" type="text" placeholder="พิมพ์ข้อความที่นี่..." oninput="updateFrame()">
+
+<div id="stickerBar" class="sticker-bar">
+    <button class="sticker-btn" onclick="addSticker('💖')">💖</button>
+    <button class="sticker-btn" onclick="addSticker('✨')">✨</button>
+    <button class="sticker-btn" onclick="addSticker('🎀')">🎀</button>
+    <button class="sticker-btn" onclick="addSticker('🧸')">🧸</button>
+    <button class="sticker-btn" onclick="addSticker('🍒')">🍒</button>
+    <button class="sticker-btn" onclick="undoStickers()" style="font-size:14px; margin-left:10px;">❌ Clear</button>
+</div>
 
 <div id="photos"></div>
 <div id="frame"></div>
 
 <script>
+  // --- Audio Context for Beep & Sound ---
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  
+  function playBeep(freq = 800, duration = 0.1) {
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.frequency.value = freq;
+    osc.type = 'sine';
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+    osc.stop(audioCtx.currentTime + duration);
+  }
+
+  function playShutter() {
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    const bufferSize = audioCtx.sampleRate * 0.1; 
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+    noise.connect(gain);
+    gain.connect(audioCtx.destination);
+    noise.start();
+  }
+
+  // --- Variables ---
   const video = document.getElementById("video");
   const photosDiv = document.getElementById("photos");
   const frameDiv = document.getElementById("frame");
   const captionInput = document.getElementById("captionInput");
-  const cameraOverlay = document.getElementById("cameraOverlay");
-  const countdownNum = document.getElementById("countdownNum");
-  const photoCounterText = document.getElementById("photoCounterText");
   const autoSnapBtn = document.getElementById("autoSnapBtn");
-  const welcomeModal = document.getElementById("welcomeModal");
-  const instructionModal = document.getElementById("instructionModal");
-
+  const flashElem = document.getElementById("flash");
+  
   let photos = [];
-  let maxPhotos = 4; 
+  let maxPhotos = 4;
   let currentLayout = 4;
   let currentFilter = 'none';
-  let frameBg = '#ffffff';
-  let frameText = '#000000';
+  let frameType = 'white'; 
   let isCapturing = false;
-  let hasShownInstruction = false; // ตัวแปรเช็คว่าเคยโชว์คำแนะนำไปหรือยัง
+  let stickers = []; 
 
-  // 1. ปิด Welcome Popup
-  function closeModalAndStart() {
-    welcomeModal.style.opacity = '0';
-    setTimeout(() => {
-        welcomeModal.style.display = 'none';
-        startCamera();
-    }, 500);
+  // --- Modal Logic ---
+  function toggleModal(id, show = true) {
+    const el = document.getElementById(id);
+    if(show) el.classList.add('open');
+    else el.classList.remove('open');
   }
 
-  // 2. ปิด Instruction Popup
-  function closeInstruction() {
-      instructionModal.style.opacity = '0';
-      setTimeout(() => {
-          instructionModal.style.display = 'none';
-      }, 300);
+  function closeWelcome() {
+    toggleModal('welcomeModal', false);
+    startCamera();
   }
 
-  // 3. แสดง Instruction Popup (เรียกใช้เมื่อถ่ายเสร็จ)
-  function showInstruction() {
-      if(hasShownInstruction) return; // ถ้าเคยโชว์แล้วไม่ต้องโชว์ซ้ำ
-      
-      instructionModal.style.display = 'flex';
-      // ใช้ setTimeout นิดนึงให้ Animation สวย
-      setTimeout(() => {
-          instructionModal.style.opacity = '1';
-      }, 100);
-      
-      hasShownInstruction = true;
-  }
-
+  // --- Camera & Capture ---
   function startCamera() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       alert("Browser ไม่รองรับ หรือไม่ได้เปิดผ่าน HTTPS");
@@ -363,49 +317,49 @@
     }
     navigator.mediaDevices.getUserMedia({ 
       video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" } 
-    }).then(stream => { 
-      video.srcObject = stream; video.play();
-    }).catch(err => {
-      console.error(err); alert("กรุณากด 'อนุญาต (Allow)' เพื่อเปิดกล้อง");
-    });
+    }).then(stream => { video.srcObject = stream; video.play(); })
+      .catch(err => { console.error(err); alert("กรุณาอนุญาตให้ใช้กล้อง"); });
   }
 
   function startAutoCapture() {
-    if (isCapturing) return;
-    if (!video.srcObject) { startCamera(); return; }
-    
-    resetApp(false); 
+    if (isCapturing || !video.srcObject) { if(!video.srcObject) startCamera(); return; }
+    resetApp(false);
     isCapturing = true;
     document.body.classList.add('is-capturing');
     autoSnapBtn.classList.add('capturing');
-    autoSnapBtn.innerHTML = "STOP"; 
+    autoSnapBtn.innerHTML = "<span>STOP</span>";
     runCaptureSequence(0);
   }
 
   function runCaptureSequence(index) {
-    if (index >= maxPhotos) {
-        finishAutoCapture();
-        return;
-    }
+    if (index >= maxPhotos) { finishAutoCapture(); return; }
 
-    photoCounterText.innerText = `Photo ${index + 1}/${maxPhotos}`;
-    cameraOverlay.classList.add('active');
+    document.getElementById("photoCounterText").innerText = `Photo ${index + 1}/${maxPhotos}`;
+    document.getElementById("cameraOverlay").classList.add('active');
 
     let count = 3;
-    countdownNum.innerText = count;
-    
-    const countdownTimer = setInterval(() => {
+    document.getElementById("countdownNum").innerText = count;
+    playBeep(600); 
+
+    const timer = setInterval(() => {
         count--;
         if (count > 0) {
-            countdownNum.innerText = count;
+            document.getElementById("countdownNum").innerText = count;
+            playBeep(600);
         } else {
-            clearInterval(countdownTimer);
-            countdownNum.innerText = "CHEESE!";
+            clearInterval(timer);
+            document.getElementById("countdownNum").innerText = "CHEESE!";
+            playBeep(1200, 0.2); 
+            
             setTimeout(() => {
-                takePhoto(true); 
-                cameraOverlay.classList.remove('active'); 
-                setTimeout(() => { runCaptureSequence(index + 1); }, 1500); 
-            }, 500);
+                flashElem.classList.add('flash-active');
+                setTimeout(()=>flashElem.classList.remove('flash-active'), 200);
+                playShutter(); 
+                
+                takePhoto(true);
+                document.getElementById("cameraOverlay").classList.remove('active');
+                setTimeout(() => runCaptureSequence(index + 1), 1500);
+            }, 300);
         }
     }, 1000);
   }
@@ -414,181 +368,180 @@
     isCapturing = false;
     document.body.classList.remove('is-capturing');
     autoSnapBtn.classList.remove('capturing');
-    autoSnapBtn.innerHTML = "AUTO<br>SNAP";
-    
-    // 🔴 จุดสำคัญ: ถ่ายเสร็จปุ๊บ สร้างรูปเลย + โชว์คำแนะนำ
-    createFrame();
-    showInstruction();
+    autoSnapBtn.innerHTML = "<span>AUTO</span><span>SNAP</span>";
+    document.getElementById("stickerBar").style.display = "flex"; 
+    updateFrame();
+    toggleModal('instructionModal', true);
   }
 
-  function takePhoto(isAuto = false) {
+  function takePhoto(isAuto) {
     if (photos.length >= maxPhotos) return;
-    if (!isAuto && isCapturing) return; 
-
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth; canvas.height = video.videoHeight;
     const ctx = canvas.getContext("2d");
-
-    ctx.filter = currentFilter; 
+    
+    ctx.filter = currentFilter;
     ctx.translate(canvas.width, 0); ctx.scale(-1, 1);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    ctx.filter = 'none'; 
+    ctx.filter = 'none';
 
     const imgData = canvas.toDataURL("image/png");
     photos.push(imgData);
 
     const thumb = document.createElement("img");
     thumb.src = imgData; photosDiv.appendChild(thumb);
-
-    // ถ้าถ่ายแบบ Manual จนครบ ก็ให้สร้างรูปเลยเหมือนกัน
-    if (!isCapturing && photos.length === maxPhotos) {
-      createFrame();
-      showInstruction();
+    
+    if(!isCapturing && photos.length === maxPhotos) {
+        document.getElementById("stickerBar").style.display = "flex";
+        updateFrame();
+        toggleModal('instructionModal', true);
     }
   }
 
-  // --- ฟังก์ชัน Layout / Filter / Frame ---
-  function setLayout(num, btn) {
+  // --- Configuration ---
+  function setLayout(n, btn) {
     if (isCapturing) return;
-    if (photos.length > 0 && !confirm("เปลี่ยน Layout รูปจะหายนะ ยืนยันไหม?")) return;
-    resetApp();
-    maxPhotos = num; currentLayout = num;
-    document.querySelectorAll('#layout3, #layout4, #layout6').forEach(b => b.classList.remove('active'));
+    if (photos.length > 0 && !confirm("เปลี่ยน Layout รูปจะหายนะ?")) return;
+    resetApp(); maxPhotos = n; currentLayout = n;
+    setActive(btn);
+  }
+  function setFilter(f, btn) { currentFilter = f; video.style.filter = f; setActive(btn); }
+  function setFrameType(t, btn) { frameType = t; setActive(btn); if(photos.length===maxPhotos) updateFrame(); }
+  function setActive(btn) {
+    btn.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
   }
 
-  function setFilter(val, btn) {
-    currentFilter = val; video.style.filter = val;
-    if(btn) {
-      btn.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    }
+  // --- Sticker Logic ---
+  function addSticker(emoji) {
+    if(photos.length !== maxPhotos) return;
+    stickers.push({
+        text: emoji,
+        x: Math.random() * 0.8 + 0.1, 
+        y: Math.random() * 0.8 + 0.1,
+        r: (Math.random() - 0.5) * 50 
+    });
+    updateFrame();
   }
+  function undoStickers() { stickers = []; updateFrame(); }
 
-  function setFrameColor(bg, txt, btn) {
-    frameBg = bg; frameText = txt;
-    if(btn) {
-      btn.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    }
-    if (photos.length === maxPhotos) createFrame();
-  }
-
-  function updateCaption() {
-    if (photos.length === maxPhotos) createFrame();
-  }
-
-  function resetApp(clearCaption = true) {
-    if(isCapturing) return;
-    photos = []; photosDiv.innerHTML = ""; frameDiv.innerHTML = "";
-    if(clearCaption) captionInput.value = "";
-    hasShownInstruction = false; // รีเซ็ตให้โชว์คำแนะนำได้อีกถ้าถ่ายใหม่
-  }
-
-  // --- วาดรูป ---
-  function createFrame() {
+  // --- Drawing Frame ---
+  function updateFrame() {
+    if (photos.length < maxPhotos) return;
     frameDiv.innerHTML = "";
-    // ถ้ายังไม่ได้พิมพ์อะไร ให้ใช้ค่าว่าง (แต่โค้ดจะวาดกรอบรอไว้เลย)
-    const caption = captionInput.value || "";
     
-    const frameCanvas = document.createElement("canvas");
-    const fctx = frameCanvas.getContext("2d");
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
     const padding = 50; const gap = 20; const bottomSpace = 160;
+    const caption = captionInput.value || "";
 
-    const images = []; let loaded = 0;
-    photos.forEach((src, i) => {
-      const img = new Image(); img.src = src;
-      img.onload = () => {
-        images[i] = img; loaded++;
-        if (loaded === maxPhotos) draw();
-      };
+    const images = photos.map(src => {
+        const img = new Image(); img.src = src; return img;
     });
 
-    function draw() {
-      const w = images[0].width; const h = images[0].height;
-      let canvasW, canvasH;
+    images[0].onload = () => {
+        const w = images[0].width; const h = images[0].height;
+        let cW, cH;
 
-      if (currentLayout === 3) {
-        canvasW = w + (padding * 2); canvasH = (h * 3) + (gap * 2) + (padding * 2) + bottomSpace;
-      } else if (currentLayout === 4) {
-        canvasW = (w * 2) + gap + (padding * 2); canvasH = (h * 2) + gap + (padding * 2) + bottomSpace;
-      } else if (currentLayout === 6) {
-        canvasW = (w * 2) + gap + (padding * 2); canvasH = (h * 3) + (gap * 2) + (padding * 2) + bottomSpace;
-      }
+        if (currentLayout === 3) { cW = w + padding*2; cH = h*3 + gap*2 + padding*2 + bottomSpace; }
+        else if (currentLayout === 4) { cW = w*2 + gap + padding*2; cH = h*2 + gap + padding*2 + bottomSpace; }
+        else { cW = w*2 + gap + padding*2; cH = h*3 + gap*2 + padding*2 + bottomSpace; }
 
-      frameCanvas.width = canvasW; frameCanvas.height = canvasH;
+        canvas.width = cW; canvas.height = cH;
 
-      fctx.fillStyle = frameBg; fctx.fillRect(0, 0, canvasW, canvasH);
+        // Draw Background
+        if(frameType === 'white') { ctx.fillStyle = '#fff'; ctx.fillRect(0,0,cW,cH); }
+        else if(frameType === 'black') { ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0,0,cW,cH); }
+        else if(frameType === 'gradient') {
+            const grd = ctx.createLinearGradient(0,0,cW,cH);
+            grd.addColorStop(0, "#ff9a9e"); grd.addColorStop(1, "#fad0c4");
+            ctx.fillStyle = grd; ctx.fillRect(0,0,cW,cH);
+        } else if(frameType === 'pattern') {
+            ctx.fillStyle = '#fff'; ctx.fillRect(0,0,cW,cH);
+            ctx.fillStyle = '#eee';
+            for(let i=0; i<cW; i+=30) for(let j=0; j<cH; j+=30) ctx.beginPath(), ctx.arc(i,j,4,0,Math.PI*2), ctx.fill();
+        }
 
-      images.forEach((img, i) => {
-        let x, y;
-        if (currentLayout === 3) { x = padding; y = padding + i * (h + gap); }
-        else if (currentLayout === 4) { x = padding + (i%2)*(w+gap); y = padding + Math.floor(i/2)*(h+gap); }
-        else if (currentLayout === 6) { x = padding + (i%2)*(w+gap); y = padding + Math.floor(i/2)*(h+gap); }
-        fctx.drawImage(img, x, y, w, h);
-      });
+        const textColor = frameType === 'black' ? '#fff' : '#000';
 
-      fctx.fillStyle = frameText; fctx.font = "800 52px 'Inter', sans-serif";
-      fctx.textAlign = "center"; fctx.fillText(caption, canvasW / 2, canvasH - 90);
+        // Draw Photos
+        images.forEach((img, i) => {
+            let x, y;
+            if(currentLayout===3) { x=padding; y=padding+i*(h+gap); }
+            else { x=padding+(i%2)*(w+gap); y=padding+Math.floor(i/2)*(h+gap); }
+            ctx.drawImage(img, x, y, w, h);
+        });
 
-      fctx.font = "400 24px 'Inter', sans-serif";
-      fctx.fillText(new Date().toLocaleDateString('en-GB'), canvasW / 2, canvasH - 40);
+        // Draw Caption
+        ctx.fillStyle = textColor; ctx.font = "800 52px 'Inter', sans-serif";
+        ctx.textAlign = "center"; ctx.fillText(caption, cW/2, cH - 90);
+        ctx.font = "400 24px 'Inter', sans-serif";
+        ctx.fillText(new Date().toLocaleDateString('en-GB'), cW/2, cH - 40);
 
-      fctx.save(); fctx.globalAlpha = 0.4; fctx.font = "600 16px 'Inter', sans-serif"; 
-      fctx.fillStyle = frameText; fctx.textAlign = "right"; fctx.letterSpacing = "1px";
-      fctx.fillText("MILKBOX BY IG MARKENZ9", canvasW - (padding/2), canvasH - (padding/2));
-      fctx.restore();
+        // Watermark
+        ctx.save(); ctx.globalAlpha = 0.5; ctx.font = "600 16px 'Inter'"; 
+        ctx.textAlign = "right"; ctx.fillText("MILKBOX BY IG MARKENZ9", cW-padding/2, cH-padding/2);
+        ctx.restore();
 
-      const finalImage = document.createElement("img");
-      const finalImageDataURL = frameCanvas.toDataURL("image/png");
-      finalImage.src = finalImageDataURL;
-      frameDiv.appendChild(finalImage);
+        // Draw Stickers
+        stickers.forEach(s => {
+            ctx.save();
+            ctx.translate(s.x * cW, s.y * cH);
+            ctx.rotate(s.r * Math.PI / 180);
+            ctx.font = "80px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+            ctx.fillText(s.text, 0, 0);
+            ctx.restore();
+        });
 
-      const actionContainer = document.createElement("div");
-      actionContainer.className = "final-actions";
+        // Finalize
+        const finalUrl = canvas.toDataURL("image/png");
+        const finalImg = document.createElement("img");
+        finalImg.src = finalUrl;
+        frameDiv.appendChild(finalImg);
+        createActionButtons(finalUrl);
+    };
+  }
 
-      const dlBtn = document.createElement("a");
-      dlBtn.href = finalImageDataURL; dlBtn.download = "milkbox-studio.png";
-      dlBtn.className = "action-button dl-btn";
-      dlBtn.innerHTML = '<i class="fas fa-download"></i> Save Image';
-      
-      // 🔴 ปุ่ม Share ที่แนบลิ้งค์เว็บไปด้วย
-      const shareBtn = document.createElement("button");
-      shareBtn.className = "action-button share-btn";
-      shareBtn.innerHTML = '<i class="fas fa-share-alt"></i> Share';
-      shareBtn.onclick = async () => {
-          try {
-              const blob = await (await fetch(finalImageDataURL)).blob();
-              const file = new File([blob], "milkbox-share.png", { type: blob.type });
+  function createActionButtons(url) {
+    const box = document.createElement("div"); box.className = "final-actions";
+    
+    // Save Button
+    const dl = document.createElement("a");
+    dl.href = url; dl.download = "milkbox-studio.png";
+    dl.className = "action-button dl-btn";
+    dl.innerHTML = '<i class="fas fa-download"></i> Save Image';
 
-              // ดึง URL ปัจจุบันของเว็บมาใช้ตอนแชร์
-              const currentUrl = window.location.href;
+    // Smart Share Button
+    const share = document.createElement("button");
+    share.className = "action-button share-btn";
+    share.innerHTML = '<i class="fas fa-share-alt"></i> Share';
+    share.onclick = async () => {
+        try {
+            const blob = await (await fetch(url)).blob();
+            const file = new File([blob], "milkbox.png", { type: blob.type });
+            const shareData = {
+                title: 'MILKBOX STUDIO',
+                text: 'มาถ่ายรูปกันที่ MILKBOX! 📸✨ ลองเล่นเลยที่: ',
+                url: window.location.href, // ลิ้งค์เว็บ
+                files: [file] // รูปภาพ
+            };
+            
+            if (navigator.share) await navigator.share(shareData);
+            else alert("Browser นี้ไม่รองรับการแชร์แบบ Smart Share");
+        } catch (e) { console.log(e); }
+    };
 
-              if (navigator.share) {
-                  await navigator.share({
-                      title: 'My MILKBOX Photo',
-                      text: `มาถ่ายรูปเก๋ๆ ที่ MILKBOX กัน! 📸✨ ลองเล่นเลยที่: ${currentUrl}`,
-                      url: currentUrl, // บาง Browser จะใช้ค่านี้
-                      files: [file],
-                  });
-              } else {
-                  alert("Browser นี้ไม่รองรับการแชร์โดยตรง");
-              }
-          } catch (error) {
-              console.error("Error sharing:", error);
-          }
-      };
+    box.appendChild(dl);
+    if(navigator.canShare) box.appendChild(share);
+    frameDiv.appendChild(box);
+    frameDiv.scrollIntoView({behavior:'smooth'});
+  }
 
-      actionContainer.appendChild(dlBtn);
-      if (navigator.canShare && navigator.canShare({ files: [new File([], 'test.png', {type:'image/png'})] })) {
-          actionContainer.appendChild(shareBtn);
-      }
-
-      frameDiv.appendChild(actionContainer);
-      
-      // เลื่อนจอลงมาที่รูปทันที
-      frameDiv.scrollIntoView({ behavior: 'smooth' });
-    }
+  function resetApp(clear=true) {
+    if(isCapturing) return;
+    photos=[]; photosDiv.innerHTML=""; frameDiv.innerHTML=""; stickers=[];
+    document.getElementById("stickerBar").style.display = "none";
+    if(clear) captionInput.value="";
   }
 </script>
 
