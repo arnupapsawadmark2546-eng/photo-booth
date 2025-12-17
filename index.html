@@ -38,20 +38,16 @@
   </style>
 </head>
 <body>
-
 <h2>📸 Camera Safe Mode</h2>
 
 <video id="video" autoplay playsinline></video>
 <div id="countdown">3</div>
 <button onclick="startCamera()">เปิดกล้อง</button>
 <button onclick="startPhotoBooth()">ถ่ายรูป</button>
-
 <button onclick="downloadFrame()">ดาวน์โหลดรูป</button>
 
 <div id="photos"></div>
-<div id="frame"></div>
-
-<script>
+  <script>
   const video = document.getElementById("video");
   const photosDiv = document.getElementById("photos");
   const photos = [];
@@ -93,12 +89,6 @@ function startPhotoBooth() {
       clearInterval(timer);
       countdownEl.style.display = "none";
 
-function takePhoto() {
-  if (photos.length >= 4) {
-    return;
-  }
-
-  // โค้ดถ่ายรูป
 }
   const canvas = document.createElement("canvas");
   canvas.width = video.videoWidth;
