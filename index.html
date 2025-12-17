@@ -135,7 +135,20 @@
     images.forEach((img, i) => {
       const x = padding + (i % 2) * (w + padding);
       const y = padding + Math.floor(i / 2) * (h + padding);
-      fctx.drawImage(img, x, y, w, h);
+      fctx.filter = "contrast(0.9) saturate(0.85) brightness(1.05)";
+fctx.drawImage(img, x, y, w, h);
+fctx.filter = "none";
+      const grain = fctx.getImageData(0, 0, frameCanvas.width, frameCanvas.height);
+for (let i = 0; i < grain.data.length; i += 4) {
+  const noise = (Math.random() - 0.5) * 12;
+  grain.data[i] += noise;     // R
+  grain.data[i + 1] += noise; // G
+  grain.data[i + 2] += noise; // B
+}
+fctx.putImageData(grain, 0, 0);
+      fctx.fillStyle = "rgba(255, 220, 180, 0.08)";
+fctx.fillRect(0, 0, frameCanvas.width, frameCanvas.height);
+      
     });
 
     // ข้อความล่าง
