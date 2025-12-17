@@ -95,6 +95,8 @@
   }
 const caption = document.getElementById("captionInput").value || "";
 function createFrame() {
+  if (photos.length < 4) return;
+
   frameDiv.innerHTML = "";
 
   const caption = document.getElementById("captionInput").value || "";
@@ -102,8 +104,8 @@ function createFrame() {
   const frameCanvas = document.createElement("canvas");
   const fctx = frameCanvas.getContext("2d");
 
-  const padding = 40;
-  const bottomSpace = 80;
+  const padding = 30;
+  const bottomSpace = 70;
 
   const images = [];
   let loaded = 0;
@@ -114,22 +116,22 @@ function createFrame() {
     img.onload = () => {
       images[i] = img;
       loaded++;
-      if (loaded === photos.length) drawFrame();
+      if (loaded === photos.length) draw();
     };
   });
 
-  function drawFrame() {
+  function draw() {
     const w = images[0].width;
     const h = images[0].height;
 
     frameCanvas.width = w * 2 + padding * 3;
     frameCanvas.height = h * 2 + padding * 3 + bottomSpace;
 
-    // พื้นหลังขาว
-    fctx.fillStyle = "#ffffff";
+    // พื้นหลังขาว (กรอบ)
+    fctx.fillStyle = "#fff";
     fctx.fillRect(0, 0, frameCanvas.width, frameCanvas.height);
 
-    // รูป 4 รูป
+    // วาดรูป
     images.forEach((img, i) => {
       const x = padding + (i % 2) * (w + padding);
       const y = padding + Math.floor(i / 2) * (h + padding);
@@ -138,27 +140,21 @@ function createFrame() {
 
     // ข้อความใต้รูป
     fctx.fillStyle = "#000";
-    fctx.font = "28px Arial";
+    fctx.font = "24px Arial";
     fctx.textAlign = "center";
     fctx.fillText(
       caption,
       frameCanvas.width / 2,
-      frameCanvas.height - 30
+      frameCanvas.height - 25
     );
 
-    const resultImg = document.createElement("img");
-    resultImg.src = frameCanvas.toDataURL("image/png");
-    resultImg.style.width = "300px";
-    frameDiv.appendChild(resultImg);
-
-    const link = document.createElement("a");
-    link.href = resultImg.src;
-    link.download = "photo-booth.png";
-    link.innerText = "⬇️ ดาวน์โหลดรูป";
-    frameDiv.appendChild(document.createElement("br"));
-    frameDiv.appendChild(link);
+    const result = document.createElement("img");
+    result.src = frameCanvas.toDataURL("image/png");
+    result.style.width = "300px";
+    frameDiv.appendChild(result);
   }
 }
+
 <br>
 <input 
   id="captionInput" 
