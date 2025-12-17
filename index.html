@@ -96,6 +96,72 @@
   }
 const caption = document.getElementById("captionInput").value || "";
 function createFrame() {
+  frameDiv.innerHTML = "";
+
+  const caption = document.getElementById("captionInput").value || "";
+
+  const frameCanvas = document.createElement("canvas");
+  const fctx = frameCanvas.getContext("2d");
+
+  const padding = 40;
+  const bottomSpace = 80;
+
+  const images = [];
+  let loaded = 0;
+
+  photos.forEach((src, i) => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => {
+      images[i] = img;
+      loaded++;
+      if (loaded === photos.length) drawFrame();
+    };
+  });
+
+  function drawFrame() {
+    const w = images[0].width;
+    const h = images[0].height;
+
+    frameCanvas.width = w * 2 + padding * 3;
+    frameCanvas.height = h * 2 + padding * 3 + bottomSpace;
+
+    // พื้นหลังขาว
+    fctx.fillStyle = "#ffffff";
+    fctx.fillRect(0, 0, frameCanvas.width, frameCanvas.height);
+
+    // รูป 4 รูป
+    images.forEach((img, i) => {
+      const x = padding + (i % 2) * (w + padding);
+      const y = padding + Math.floor(i / 2) * (h + padding);
+      fctx.drawImage(img, x, y, w, h);
+    });
+
+    // ข้อความใต้รูป
+    fctx.fillStyle = "#000";
+    fctx.font = "28px Arial";
+    fctx.textAlign = "center";
+    fctx.fillText(
+      caption,
+      frameCanvas.width / 2,
+      frameCanvas.height - 30
+    );
+
+    const resultImg = document.createElement("img");
+    resultImg.src = frameCanvas.toDataURL("image/png");
+    resultImg.style.width = "300px";
+    frameDiv.appendChild(resultImg);
+
+    const link = document.createElement("a");
+    link.href = resultImg.src;
+    link.download = "photo-booth.png";
+    link.innerText = "⬇️ ดาวน์โหลดรูป";
+    frameDiv.appendChild(document.createElement("br"));
+    frameDiv.appendChild(link);
+  }
+}
+คุณส่ง
+function createFrame() {
   if (photos.length < 4) return;
 
   frameDiv.innerHTML = "";
