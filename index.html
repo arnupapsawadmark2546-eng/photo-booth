@@ -44,7 +44,8 @@
 <video id="video" autoplay playsinline></video><br><br>
 <div id="countdown">3</div>
 <button onclick="startCamera()">เปิดกล้อง</button>
-<button onclick="startCountdown()">ถ่ายรูป</button>
+<button onclick="startPhotoBooth()">ถ่ายรูป</button>
+
 <button onclick="downloadFrame()">ดาวน์โหลดรูป</button>
 
 <div id="photos"></div>
@@ -56,11 +57,17 @@
   const photos = [];
   const countdownEl = document.getElementById("countdown");
 
-function startCountdown() {
+function startPhotoBooth() {
   if (video.videoWidth === 0) {
     alert("กรุณากดเปิดกล้องก่อน");
     return;
   }
+
+  if (photos.length > 0) return; // กันกดซ้ำ
+
+  takeWithCountdown();
+}
+  
 
   let count = 3;
   countdownEl.style.display = "block";
