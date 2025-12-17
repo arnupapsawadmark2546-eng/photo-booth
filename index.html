@@ -2,46 +2,160 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>Photo Booth</title>
+  <title>Korean Photo Booth</title>
   <style>
     body {
       text-align: center;
       font-family: Arial, sans-serif;
+      background: #f5f5f5;
     }
     video {
-      width: 300px;
+      width: 280px;
       border-radius: 12px;
       background: black;
     }
     button {
-      padding: 12px 20px;
+      padding: 10px 18px;
       font-size: 16px;
+      margin: 6px;
+      cursor: pointer;
+    }
+    #photos img {
+      width: 70px;
+      margin: 4px;
+      border-radius: 6px;
+    }
+    #frame img {
+      width: 300px;
+      margin-top: 12px;
+      border-radius: 12px;
+      background: white;
+    }
+    input {
+      padding: 10px;
+      width: 260px;
+      font-size: 16px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
 
-<h2>Photo Booth (Base)</h2>
+<h2>📸 Korean Photo Booth</h2>
 
 <video id="video" autoplay playsinline></video><br><br>
+
 <button onclick="startCamera()">เปิดกล้อง</button>
+<button onclick="takePhoto()">ถ่ายรูป</button>
+
+<br><br>
+<input id="captionInput" type="text" placeholder="พิมพ์ข้อความใต้รูป">
+
+<div id="photos"></div>
+<div id="frame"></div>
 
 <script>
   const video = document.getElementById("video");
+  const photosDiv = document.getElementById("photos");
+  const frameDiv = document.getElementById("frame");
+
+  const photos = [];
 
   function startCamera() {
     navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => {
         video.srcObject = stream;
       })
-      .catch(err => {
-        alert("เปิดกล้องไม่ได้");
-        console.error(err);
+      .catch(err => alert("เปิดกล้องไม่ได้"));
+  }
+
+  function takePhoto() {
+    if (photos.length >= 4) return;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const imgData = canvas.toDataURL("image/png");
+    photos.push(imgData);
+
+    const thumb = document.createElement("img");
+    thumb.src = imgData;
+    photosDiv.appendChild(thumb);
+
+    if (photos.length === 4) {
+      createFrame();
+    }
+  }
+
+  function createFrame() {
+    frameDiv.innerHTML = "";
+
+    const caption = document.getElementById("captionInput").value || "";
+
+    const frameCanvas = document.createElement("canvas");
+    const fctx = frameCanvas.getContext("2d");
+
+    const padding = 20;
+    const bottomSpace = 70;
+
+    const images = [];
+    let loaded = 0;
+
+    photos.forEach((src, i) => {
+      const img = new Image();
+      img.src = src;
+      img.onload = () => {
+        images[i] = img;
+        loaded++;
+        if (loaded === 4) draw();
+      };
+    });
+
+    function draw() {
+      const w = images[0].width;
+      const h = images[0].height;
+
+      frameCanvas.width = w * 2 + padding * 3;
+      frameCanvas.height = h * 2 + padding * 3 + bottomSpace;
+
+      // กรอบขาว
+      fctx.fillStyle = "#ffffff";
+      fctx.fillRect(0, 0, frameCanvas.width, frameCanvas.height);
+
+      // รูป 4 รูป
+      images.forEach((img, i) => {
+        const x = padding + (i % 2) * (w + padding);
+        const y = padding + Math.floor(i / 2) * (h + padding);
+        fctx.drawImage(img, x, y, w, h);
       });
+
+      // ข้อความใต้รูป
+      fctx.fillStyle = "#000";
+      fctx.font = "24px Arial";
+      fctx.textAlign = "center";
+      fctx.fillText(
+        caption,
+        frameCanvas.width / 2,
+        frameCanvas.height - 30
+      );
+
+      const result = document.createElement("img");
+      result.src = frameCanvas.toDataURL("image/png");
+      frameDiv.appendChild(result);
+
+      const link = document.createElement("a");
+      link.href = result.src;
+      link.download = "photo-booth.png";
+      link.innerText = "⬇️ ดาวน์โหลดรูป";
+      frameDiv.appendChild(document.createElement("br"));
+      frameDiv.appendChild(link);
+    }
   }
 </script>
 
 </body>
 </html>
-ส่งแล้ว
-เขียนถึง
