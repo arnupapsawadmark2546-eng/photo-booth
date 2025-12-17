@@ -2,85 +2,180 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>MILKBOX</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MILKBOX STUDIO</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
     body {
-      text-align: center;
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
+      font-family: 'Inter', sans-serif;
+      background-color: #fafafa;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    video {
-      width: 280px;
-      border-radius: 12px;
-      background: black;
-      /* 1. แก้กลับด้านที่หน้าจอ (ให้เหมือนส่องกระจก) */
-      transform: scaleX(-1); 
-    }
-    button {
-      padding: 10px 18px;
-      font-size: 14px;
-      margin: 4px;
-      cursor: pointer;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      background: white;
-    }
-    button:hover {
-      background: #e0e0e0;
-    }
-    /* จัดกลุ่มปุ่มฟิลเตอร์ให้สวยงาม */
-    .filter-controls {
-      margin: 15px 0;
+
+    /* กล้อง */
+    .camera-container {
+      position: relative;
+      margin-bottom: 20px;
       padding: 10px;
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    }
+    
+    video {
+      width: 100%;
+      max-width: 350px; /* จอใหญ่ขึ้น */
+      border-radius: 16px;
+      background: #000;
+      transform: scaleX(-1); /* กลับด้านจอมองเห็น */
+      display: block;
+    }
+
+    /* กลุ่มปุ่มกด */
+    .control-group {
+      background: white;
+      padding: 15px;
+      border-radius: 18px;
+      width: 100%;
+      max-width: 380px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+      text-align: center;
+    }
+
+    .label {
+      font-size: 11px;
+      color: #999;
+      margin-bottom: 8px;
+      display: block;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* สไตล์ปุ่มกด */
+    button {
+      border: 1px solid transparent;
+      padding: 8px 14px;
+      margin: 3px;
+      border-radius: 12px;
+      font-size: 12px;
+      cursor: pointer;
+      background: #f4f4f4;
+      color: #555;
+      transition: all 0.2s ease;
+    }
+
+    button:hover { background: #eaeaea; }
+    
+    button.active {
+      background: #000;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    /* ปุ่ม Snap */
+    .snap-btn {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: #ff5252;
+      border: 4px solid #fff;
+      box-shadow: 0 0 0 4px #eee;
+      margin: 0 15px;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .snap-btn:active { transform: scale(0.9); background: #d32f2f; }
+
+    /* Input ข้อความ */
+    input[type="text"] {
+      border: 1px solid #eee;
       background: #fff;
-      display: inline-block;
-      border-radius: 10px;
+      padding: 12px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 300px;
+      text-align: center;
+      font-family: inherit;
+      outline: none;
+      margin-top: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+
+    /* รูปผลลัพธ์ */
+    #photos {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
     }
     #photos img {
-      width: 70px;
-      margin: 4px;
-      border-radius: 6px;
-      /* ให้รูปตัวอย่างเล็กๆ กลับด้านเหมือนกระจกด้วย (สวยงาม) */
-      transform: scaleX(-1);
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 8px;
+      transform: scaleX(-1); /* กลับด้านรูปเล็ก */
     }
+
     #frame img {
-      width: 300px;
-      margin-top: 12px;
-      border-radius: 12px;
-      background: white;
+      max-width: 100%;
+      width: 340px;
+      border-radius: 4px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+      margin-top: 20px;
     }
-    input {
-      padding: 10px;
-      width: 260px;
-      font-size: 15px;
-      text-align: center;
-      margin-top: 10px;
+    
+    .btn-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 10px;
     }
   </style>
 </head>
 <body>
 
-<h2>📸 MILKBOX BY IG MARKENZ9 </h2>
-
-<video id="video" autoplay playsinline></video>
-
-<br>
-
-<div class="filter-controls">
-  <div>เลือกโทนสี:</div>
-  <button onclick="setFilter('none')">ธรรมชาติ</button>
-  <button onclick="setFilter('sepia(0.6)')">วินเทจ</button>
-  <button onclick="setFilter('grayscale(100%)')">ขาวดำ</button>
-  <button onclick="setFilter('contrast(1.3) brightness(1.1) saturate(1.2)')">สดใส</button>
+<div class="camera-container">
+  <video id="video" autoplay playsinline></video>
 </div>
 
-<br>
+<div class="control-group">
+  <span class="label">Choose Layout</span>
+  <button id="layout3" onclick="setLayout(3, this)">Strip (3)</button>
+  <button id="layout4" onclick="setLayout(4, this)" class="active">Grid (4)</button>
+  <button id="layout6" onclick="setLayout(6, this)">Big (6)</button>
+</div>
 
-<button onclick="startCamera()" style="background:#4CAF50; color:white;">เปิดกล้อง</button>
-<button onclick="takePhoto()" style="background:#FF5722; color:white;">ถ่ายรูป</button>
+<div class="control-group">
+  <span class="label">Color Tone</span>
+  <button onclick="setFilter('none', this)" class="active">Normal</button>
+  <button onclick="setFilter('brightness(1.15) saturate(0.9) contrast(0.95)', this)">🇰🇷 Korea Soft</button>
+  <button onclick="setFilter('brightness(1.1) contrast(1.15) sepia(0.2)', this)">🇯🇵 Japan Film</button>
+  <button onclick="setFilter('brightness(1.2) contrast(1.05)', this)">☁️ Clean</button>
+</div>
 
-<br>
-<input id="captionInput" type="text" placeholder="พิมพ์ข้อความใต้รูป">
+<div class="control-group">
+  <span class="label">Frame Color</span>
+  <button onclick="setFrameColor('#ffffff', '#000000')">White</button>
+  <button onclick="setFrameColor('#111111', '#ffffff')">Black</button>
+  <button onclick="setFrameColor('#FADADD', '#D63384')">Pink</button>
+  <button onclick="setFrameColor('#E0F7FA', '#006064')">Blue</button>
+</div>
+
+<div class="btn-row">
+  <button onclick="startCamera()" style="padding:10px 20px;">📷 ON</button>
+  <div class="snap-btn" onclick="takePhoto()"></div> <button onclick="resetApp()" style="padding:10px 20px;">🔄 Reset</button>
+</div>
+
+<input id="captionInput" type="text" placeholder="พิมพ์แคปชั่น..." oninput="updateCaption()">
 
 <div id="photos"></div>
 <div id="frame"></div>
@@ -89,73 +184,103 @@
   const video = document.getElementById("video");
   const photosDiv = document.getElementById("photos");
   const frameDiv = document.getElementById("frame");
+  const captionInput = document.getElementById("captionInput");
 
-  const photos = [];
-  
-  // 3. ตัวแปรเก็บค่าฟิลเตอร์ปัจจุบัน (ค่าเริ่มต้นคือ none)
-  let currentFilter = 'none';
-
-  // 4. ฟังก์ชันเปลี่ยนฟิลเตอร์
-  function setFilter(filterValue) {
-    currentFilter = filterValue;
-    video.style.filter = filterValue; // เปลี่ยนสีที่จอมองเห็นทันที
-  }
+  let photos = [];
+  let maxPhotos = 4; 
+  let currentLayout = 4;
+  let currentFilter = 'none'; // ตัวแปรสำคัญ เก็บค่าฟิลเตอร์
+  let frameBg = '#ffffff';
+  let frameText = '#000000';
 
   function startCamera() {
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
-        video.srcObject = stream;
-      })
-      .catch(err => alert("เปิดกล้องไม่ได้: " + err));
+    navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } }) // ขอความละเอียดชัดขึ้น
+      .then(stream => { video.srcObject = stream; })
+      .catch(err => alert("เปิดกล้องไม่ได้"));
+  }
+
+  function setLayout(num, btn) {
+    if (photos.length > 0) {
+      if(!confirm("เปลี่ยนเลย์เอาต์รูปจะหายนะ เอาไหม?")) return;
+      resetApp();
+    }
+    maxPhotos = num;
+    currentLayout = num;
+    document.querySelectorAll('#layout3, #layout4, #layout6').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function setFilter(val, btn) {
+    currentFilter = val;
+    video.style.filter = val; // เปลี่ยนที่หน้าจอ Video
+    
+    // เปลี่ยนสีปุ่ม active
+    if(btn) {
+      const parent = btn.parentElement;
+      parent.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  }
+
+  function setFrameColor(bg, txt) {
+    frameBg = bg;
+    frameText = txt;
+    if (photos.length === maxPhotos) createFrame();
+  }
+
+  function updateCaption() {
+    if (photos.length === maxPhotos) createFrame();
   }
 
   function takePhoto() {
-    if (photos.length >= 4) return;
+    if (photos.length >= maxPhotos) return;
 
     const canvas = document.createElement("canvas");
+    // ตั้งค่าความละเอียดให้ตรงกับวิดีโอ (จะได้ชัดๆ)
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-
     const ctx = canvas.getContext("2d");
 
-    // --- จุดสำคัญ: เรียงลำดับตามนี้ ห้ามสลับ ---
+    // ==========================================
+    // 🔴 จุดแก้ไขสำคัญ: ต้องใส่ filter ก่อน drawImage
+    // ==========================================
+    ctx.filter = currentFilter; 
     
-    // 5. ใส่ฟิลเตอร์ลงใน Canvas ก่อนวาด
-    ctx.filter = currentFilter;
-
-    // 6. กลับด้านรูป (Flip)
+    // กลับด้านรูป (Mirror)
     ctx.translate(canvas.width, 0);
     ctx.scale(-1, 1);
-
-    // 7. วาดรูปลงไป
+    
+    // วาดรูปลงไป
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     
-    // ---------------------------------------
+    // ** รีเซ็ต filter ป้องกันการเพี้ยนในบาง Browser **
+    ctx.filter = 'none'; 
+    // ==========================================
 
-    // แปลงเป็นรูปภาพ
     const imgData = canvas.toDataURL("image/png");
     photos.push(imgData);
 
     const thumb = document.createElement("img");
     thumb.src = imgData;
+    // รูปเล็กไม่ต้องใส่ filter ซ้ำเพราะรูปต้นฉบับ (imgData) ติด filter มาแล้วจาก Canvas
     photosDiv.appendChild(thumb);
 
-    if (photos.length === 4) {
+    if (photos.length === maxPhotos) {
       createFrame();
     }
   }
 
   function createFrame() {
     frameDiv.innerHTML = "";
-    const caption = document.getElementById("captionInput").value || "";
+    const caption = captionInput.value || "";
     
     const frameCanvas = document.createElement("canvas");
     const fctx = frameCanvas.getContext("2d");
 
-    const padding = 20;
-    const bottomSpace = 70;
-    
-    // โหลดรูปทั้ง 4 (ซึ่งรูปพวกนี้ถูกกลับด้านและใส่สีมาเรียบร้อยแล้วจากขั้นตอน takePhoto)
+    const padding = 40;
+    const gap = 20;
+    const bottomSpace = 150;
+
     const images = [];
     let loaded = 0;
 
@@ -165,7 +290,7 @@
       img.onload = () => {
         images[i] = img;
         loaded++;
-        if (loaded === 4) draw();
+        if (loaded === maxPhotos) draw();
       };
     });
 
@@ -173,25 +298,55 @@
       const w = images[0].width;
       const h = images[0].height;
 
-      frameCanvas.width = w * 2 + padding * 3;
-      frameCanvas.height = h * 2 + padding * 3 + bottomSpace;
+      let canvasW, canvasH;
 
-      // พื้นหลังสีขาว
-      fctx.fillStyle = "#ffffff";
-      fctx.fillRect(0, 0, frameCanvas.width, frameCanvas.height);
+      if (currentLayout === 3) {
+        canvasW = w + (padding * 2);
+        canvasH = (h * 3) + (gap * 2) + (padding * 2) + bottomSpace;
+      } else if (currentLayout === 4) {
+        canvasW = (w * 2) + gap + (padding * 2);
+        canvasH = (h * 2) + gap + (padding * 2) + bottomSpace;
+      } else if (currentLayout === 6) {
+        canvasW = (w * 2) + gap + (padding * 2);
+        canvasH = (h * 3) + (gap * 2) + (padding * 2) + bottomSpace;
+      }
 
-      // วาดรูป 4 รูป
+      frameCanvas.width = canvasW;
+      frameCanvas.height = canvasH;
+
+      // สีพื้นหลัง
+      fctx.fillStyle = frameBg;
+      fctx.fillRect(0, 0, canvasW, canvasH);
+
+      // วาดรูป
       images.forEach((img, i) => {
-        const x = padding + (i % 2) * (w + padding);
-        const y = padding + Math.floor(i / 2) * (h + padding);
+        let x, y;
+        if (currentLayout === 3) {
+            x = padding;
+            y = padding + i * (h + gap);
+        } else if (currentLayout === 4) {
+            let col = i % 2;
+            let row = Math.floor(i / 2);
+            x = padding + col * (w + gap);
+            y = padding + row * (h + gap);
+        } else if (currentLayout === 6) {
+            let col = i % 2;
+            let row = Math.floor(i / 2);
+            x = padding + col * (w + gap);
+            y = padding + row * (h + gap);
+        }
         fctx.drawImage(img, x, y, w, h);
       });
 
       // ข้อความ
-      fctx.fillStyle = "#000";
-      fctx.font = "bold 35px Arial"; // เพิ่มตัวหนาให้สวยขึ้น
+      fctx.fillStyle = frameText;
+      fctx.font = "bold 50px 'Inter', sans-serif";
       fctx.textAlign = "center";
-      fctx.fillText(caption, frameCanvas.width / 2, frameCanvas.height - 30);
+      fctx.fillText(caption, canvasW / 2, canvasH - 70);
+
+      // วันที่
+      fctx.font = "300 28px 'Inter', sans-serif";
+      fctx.fillText(new Date().toLocaleDateString('en-GB'), canvasW / 2, canvasH - 30);
 
       const result = document.createElement("img");
       result.src = frameCanvas.toDataURL("image/png");
@@ -199,15 +354,27 @@
 
       const link = document.createElement("a");
       link.href = result.src;
-      link.download = "milkbox-photo.png";
-      link.style.display = "block";
-      link.style.marginTop = "10px";
+      link.download = "milkbox-korea.png";
+      link.style.display = "inline-block";
+      link.style.marginTop = "20px";
+      link.style.background = "#000";
+      link.style.color = "#fff";
+      link.style.padding = "15px 30px";
+      link.style.borderRadius = "50px";
       link.style.textDecoration = "none";
-      link.style.color = "#333";
-      link.innerText = "⬇️ ดาวน์โหลดรูป";
+      link.style.fontWeight = "bold";
+      link.innerText = "⬇️ Save Image";
       
+      frameDiv.appendChild(document.createElement("br"));
       frameDiv.appendChild(link);
     }
+  }
+
+  function resetApp() {
+    photos.length = 0;
+    photosDiv.innerHTML = "";
+    frameDiv.innerHTML = "";
+    captionInput.value = "";
   }
 </script>
 
